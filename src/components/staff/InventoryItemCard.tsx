@@ -52,6 +52,8 @@ export function InventoryItemCard({
         </label>
       </div>
       <InventoryStockControls
+        currentStock={item.stockQuantity}
+        itemName={item.name}
         busy={busy}
         onAddStock={onAddStock}
         onSetStock={onSetStock}

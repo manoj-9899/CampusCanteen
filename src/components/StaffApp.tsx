@@ -544,6 +544,8 @@ export function StaffApp() {
                   <td className="min-w-[12rem] py-3">
                     <InventoryStockControls
                       layout="compact"
+                      currentStock={item.stockQuantity}
+                      itemName={item.name}
                       busy={busy}
                       onAddStock={(qty) => updateStock(item.id, { addStock: qty })}
                       onSetStock={(qty) => updateStock(item.id, { stockQuantity: qty })}
