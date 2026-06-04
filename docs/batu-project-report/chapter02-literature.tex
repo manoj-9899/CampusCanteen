@@ -1,0 +1,50 @@
+\chapter{Literature Survey / Review of Literature}
+
+\section{Introduction}
+This chapter reviews existing approaches to food ordering, inventory control, queue management, QR-based identification, forecasting, and progressive web applications. The review highlights why generic food delivery systems are insufficient for batch-stock college canteens and justifies the design choices of \ShortTitle{}.
+
+\section{Online Food Ordering Platforms}
+Platforms such as Swiggy and Zomato optimize restaurant workflows: menu discovery, cart, payment, and delivery or pickup with order-triggered preparation. Research on e-commerce checkout emphasizes cart abandonment reduction and payment trust. However, these systems assume fulfillment capacity is abstracted behind the restaurant---they do not model a visible integer stock that decreases with both online and walk-in sales unless manually updated.
+
+\section{Queue Management Systems}
+Queue management literature discusses physical queues, token dispensers, and digital ticketing. Token-based systems reduce perceived waiting time by decoupling ordering from service. Digital tokens displayed on a phone screen extend this model. \ShortTitle{} combines numeric tokens with machine-readable QR payloads to reduce staff typing errors.
+
+\section{Inventory Management}
+Retail inventory systems maintain SKU stock, reorder points, and reservations. E-commerce ``only N left'' messaging influences purchase urgency. For canteens, low-stock thresholds trigger labels such as ``Only 5 left'' before sold-out. Critical design decision: validate stock at cart review, order creation, and payment, and decrement only after payment to avoid locking stock for unpaid carts.
+
+\section{QR Codes in Ticketing and Verification}
+ISO/IEC 18004 standardizes QR code symbology. Event ticketing and boarding passes use QR for rapid verification. Staff counter cameras on smartphones can decode QR in browsers via \texttt{getUserMedia} and barcode libraries. Pairing QR with a human-readable token provides fallback when scanning fails.
+
+\section{Demand Forecasting}
+Hyndman and Athanasopoulos describe time-series forecasting methods. Simple moving averages and weighted historical averages are appropriate when only weeks of sales data exist. \ShortTitle{} uses a 14-day weighted moving average to suggest batch preparation quantities---sufficient for a mini project without requiring deep learning infrastructure.
+
+\section{Progressive Web Applications}
+Mozilla and W3C document PWAs: manifest, service worker, installability, and responsive layout. PWAs avoid app store distribution while supporting home-screen icons---aligned with campus deployment constraints and beginner project scope (no native Android development).
+
+\section{Web Application Architecture}
+Modern full-stack JavaScript frameworks such as Next.js unify server-rendered pages and API routes, reducing deployment complexity for academic projects. Prisma ORM provides type-safe database access across SQLite (early prototype) and PostgreSQL (production path).
+
+\section{Security and Authentication}
+JSON Web Tokens (RFC 7519) in HTTP-only cookies are a common pattern for session management. Role-based access control separates student and staff API surfaces. Password hashing with bcrypt protects stored credentials.
+
+\section{Summary of Research Gap}
+Table~\ref{tab:gap} summarizes the gap addressed by this project.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Comparison with generic food ordering apps}
+  \label{tab:gap}
+  \tablebodysetup
+  \begin{tabularx}{\textwidth}{@{}>{\bfseries}p{0.36\textwidth} C C@{}}
+    \toprule
+    \textbf{Feature} & \textbf{Generic app} & \textbf{\ShortTitle{}} \\
+    \midrule
+    Batch stock model & Partial & Central \\
+    Custom staff stock count & Rare & Yes (set exact qty.) \\
+    QR + token pickup & Varies & Yes \\
+    Staff sold-out toggle (cash) & No & Yes \\
+    PWA, no native app & Varies & Yes \\
+    College forecast module & No & Yes \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

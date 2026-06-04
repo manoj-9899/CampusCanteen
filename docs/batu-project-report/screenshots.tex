@@ -1,0 +1,67 @@
+% UI screenshots — include from chapter06-coding.tex
+% Requires images/*.png and \hasimagestrue in student-info.tex
+
+\ifhasimages
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/01-login.png}
+  \caption{Login page --- student and staff credentials}
+  \label{fig:login}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/02-student-menu.png}
+  \caption{Student menu screen (mobile layout) with categories and stock labels}
+  \label{fig:student-menu}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/03-review-order.png}
+  \caption{Order review step before payment}
+  \label{fig:review-order}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/04-payment.png}
+  \caption{Payment confirmation screen}
+  \label{fig:payment}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/05-receipt-qr.png}
+  \caption{Order receipt with pickup token and QR code}
+  \label{fig:receipt-qr}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/06-student-orders.png}
+  \caption{Student ``My orders'' tab with order status}
+  \label{fig:student-orders}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/07-staff-inventory.png}
+  \caption{Staff inventory management with custom ``Set to'' stock (e.g.\ 17 samosas)}
+  \label{fig:staff-inventory}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{images/08-staff-verify.png}
+  \caption{Staff QR verification and handover screen}
+  \label{fig:staff-verify}
+\end{figure}
+
+\else
+
+\noindent\textcolor{red}{\textbf{[Screenshots not included yet.]}}
+Add PNG files listed in Table~\ref{tab:screenshot-checklist} to the folder \texttt{images/}, then set \texttt{\textbackslash hasimagestrue} in \texttt{student-info.tex} and recompile twice so the List of Figures updates.
+
+\fi

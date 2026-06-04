@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="CampusCanteen">
+  <rect width="512" height="512" rx="96" fill="#f97316"/>
+  <g transform="translate(128 106)" fill="none" stroke="#fff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M74 10v138M116 10v138M95 10c0 48-21 74-21 117h42c0-43-21-69-21-117z"/>
+    <path d="M202 10v181h37V10h-37z"/>
+    <path d="M202 191h37"/>
+  </g>
+</svg>

@@ -1,0 +1,74 @@
+% CampusCanteen — B.Tech Project Report (BATU Computer Engineering format)
+% Compile: pdflatex main.tex (run twice for TOC) or use Overleaf
+\documentclass[12pt,a4paper]{report}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx} % Times New Roman-like
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{needspace}
+\usepackage{float}
+\input{table-setup}
+
+\newcommand{\inr}{Rs.} % Indian Rupee (PDF-safe; avoids missing ₹ glyph)
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{titlesec}
+\usepackage{xcolor}
+\usepackage{tikz}
+
+% Placeholder marker — shows in PDF until you edit student-info.tex
+\newcommand{\fillme}[1]{\textcolor{red}{\textbf{[FILL: #1]}}}
+\input{student-info}
+\usetikzlibrary{shapes,arrows,arrows.meta,positioning,fit,shapes.multipart,shapes.geometric}
+
+% Chapter 18pt left, section 16pt, subsection 14pt (per guide)
+\titleformat{\chapter}[hang]{\bfseries\fontsize{18}{22}\selectfont}{\thechapter}{1em}{}
+\titleformat{\section}{\bfseries\fontsize{16}{19}\selectfont}{\thesection}{1em}{}
+\titleformat{\subsection}{\bfseries\fontsize{14}{17}\selectfont}{\thesubsection}{1em}{}
+
+\captionsetup[figure]{position=bottom,labelfont=bf}
+\captionsetup[table]{position=top,labelfont=bf}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+}
+
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue}
+
+\begin{document}
+
+% Roman numbering: Certificate through List of Tables (items 2--8 in guide)
+\pagenumbering{roman}
+\input{frontmatter}
+\tableofcontents
+\listoffigures
+\listoftables
+\cleardoublepage
+
+% Arabic numbering from Chapter 1
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\input{chapter01-introduction}
+\input{chapter02-literature}
+\input{chapter03-requirements}
+\input{chapter04-design}
+\input{chapter05-requirements-hw-sw}
+\input{chapter06-coding}
+\input{chapter07-conclusion}
+\input{bibliography}
+\appendix
+\input{appendix}
+
+\end{document}

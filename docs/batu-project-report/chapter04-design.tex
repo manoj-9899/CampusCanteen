@@ -1,0 +1,195 @@
+\chapter{Software Design}
+
+\section{System Architecture}
+The system follows a three-tier architecture: presentation (Next.js React client), application (Next.js API routes), and data (PostgreSQL via Prisma ORM). Figure~\ref{fig:architecture} illustrates the deployment view.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    box/.style={draw, rounded corners, minimum width=2.8cm, minimum height=0.9cm, align=center, font=\small},
+    arr/.style={-{Stealth}}
+  ]
+    \node[box] (stu) {Student\\Browser};
+    \node[box, right=1.2cm of stu] (staff) {Staff\\Browser};
+    \node[box, below=1.4cm of stu, minimum width=4.5cm] (next) {Next.js App\\(UI + API Routes)};
+    \node[box, below=1.2cm of next] (db) {PostgreSQL\\Database};
+    \draw[arr] (stu) -- (next);
+    \draw[arr] (staff) -- (next);
+    \draw[arr] (next) -- (db);
+  \end{tikzpicture}
+  \caption{High-level system architecture}
+  \label{fig:architecture}
+\end{figure}
+
+\section{Data Flow Diagram}
+\subsection{Context Diagram (Level 0)}
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    proc/.style={draw, circle, minimum size=2.2cm, align=center, font=\small},
+    ent/.style={draw, rectangle, minimum height=0.8cm, font=\small}
+  ]
+    \node[proc] (sys) {Campus\\Canteen\\System};
+    \node[ent, left=2.5cm of sys] (s) {Student};
+    \node[ent, right=2.5cm of sys] (st) {Staff};
+    \draw[->] (s) -- node[above,font=\tiny]{orders, payment} (sys);
+    \draw[->] (sys) -- node[below,font=\tiny]{receipt, status} (s);
+    \draw[->] (st) -- node[above,font=\tiny]{verify, inventory} (sys);
+    \draw[->] (sys) -- node[below,font=\tiny]{queue, forecast} (st);
+  \end{tikzpicture}
+  \caption{DFD Level 0 (context diagram)}
+  \label{fig:dfd0}
+\end{figure}
+
+\subsection{Level 1 DFD (Order Placement)}
+Figure~\ref{fig:dfd1} decomposes the student ordering path. Staff verification follows a parallel path (queue $\rightarrow$ verify $\rightarrow$ complete).
+
+\begin{figure}[htbp]
+  \centering
+  \small
+  \begin{tikzpicture}[
+    proc/.style={draw, rectangle, rounded corners, minimum width=2cm, align=center, font=\scriptsize},
+    store/.style={draw, cylinder, shape aspect=0.25, minimum height=0.6cm, font=\scriptsize},
+    arr/.style={->, >=Stealth}
+  ]
+    \node[proc] (auth) {1.0\\Auth};
+    \node[proc, right=0.8cm of auth] (val) {2.0\\Validate\\Cart};
+    \node[proc, right=0.8cm of val] (ord) {3.0\\Create\\Order};
+    \node[proc, right=0.8cm of ord] (pay) {4.0\\Payment\\+ Stock};
+    \node[store, below=1cm of val] (d1) {Menu DB};
+    \node[store, below=1cm of ord] (d2) {Order DB};
+    \draw[arr] (auth) -- (val);
+    \draw[arr] (val) -- (ord);
+    \draw[arr] (ord) -- (pay);
+    \draw[arr] (val) -- (d1);
+    \draw[arr] (ord) -- (d2);
+    \draw[arr] (pay) -- (d2);
+  \end{tikzpicture}
+  \caption{DFD Level 1 --- student order and payment (simplified)}
+  \label{fig:dfd1}
+\end{figure}
+
+\section{UML Use Case Diagram}
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    actor/.style={draw, shape=rectangle, rounded corners, minimum height=1.2cm, font=\small},
+    uc/.style={draw, ellipse, minimum width=2.2cm, minimum height=0.7cm, font=\scriptsize, align=center}
+  ]
+    \node[actor] (student) at (-4,0) {Student};
+    \node[actor] (staff) at (4,0) {Staff};
+    \node[uc] (browse) at (-1,2) {Browse\\Menu};
+    \node[uc] (order) at (-1,0.5) {Place\\Order};
+    \node[uc] (pay) at (-1,-1) {Pay \&\\Get QR};
+    \node[uc] (queue) at (2,1.5) {Manage\\Queue};
+    \node[uc] (verify) at (2,0) {Verify\\Pickup};
+    \node[uc] (inv) at (2,-1.5) {Update\\Inventory};
+    \draw (student) -- (browse);
+    \draw (student) -- (order);
+    \draw (student) -- (pay);
+    \draw (staff) -- (queue);
+    \draw (staff) -- (verify);
+    \draw (staff) -- (inv);
+  \end{tikzpicture}
+  \caption{Use case diagram}
+  \label{fig:usecase}
+\end{figure}
+
+\section{UML Class Diagram}
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    class/.style={draw, rectangle split, rectangle split parts=2, align=left, font=\scriptsize, inner sep=3pt}
+  ]
+    \node[class] (user) {\textbf{User}\\id, email, password\\name, studentId, role};
+    \node[class, below=1.2cm of user] (menu) {\textbf{MenuItem}\\id, name, price\\stockQuantity, isAvailable};
+    \node[class, right=3cm of user] (order) {\textbf{Order}\\id, orderCode\\tokenNumber, status\\totalAmount};
+    \node[class, below=0.8cm of order] (oi) {\textbf{OrderItem}\\quantity, unitPrice};
+    \draw (user) -- node[right,font=\tiny]{1..*} (order);
+    \draw (order) -- node[right,font=\tiny]{1..*} (oi);
+    \draw (menu) -- node[above,font=\tiny]{*} (oi);
+  \end{tikzpicture}
+  \caption{Simplified class diagram (domain models)}
+  \label{fig:class}
+\end{figure}
+
+\section{Interaction Diagrams (Sequence / Collaboration)}
+The payment and pickup flow involves four collaborators: Student browser, Next.js client, API server, and Staff browser. Figure~\ref{fig:sequence} lists message order equivalent to a UML sequence diagram. Collaboration view emphasizes the same messages grouped by object boundary without temporal ordering detail.
+
+\section{Sequence Diagram (Payment and Pickup)}
+\begin{figure}[htbp]
+  \centering
+  \tablebodysetup
+  \begin{tabularx}{\textwidth}{@{}Y@{}}
+    \textbf{Actors:} Student browser, Next.js client, API server, Staff browser.\\
+    \textit{1. POST /api/cart/validate}\\
+    \textit{2. POST /api/orders $\rightarrow$ PENDING}\\
+    \textit{3. POST /api/payments $\rightarrow$ CONFIRMED, stock deducted}\\
+    \textit{4. GET /api/orders/\{id\}/qr}\\
+    \textit{5. Staff: mark ready $\rightarrow$ READY\_FOR\_PICKUP}\\
+    \textit{6. POST /api/orders/verify (QR or token)}\\
+    \textit{7. POST confirm-handover $\rightarrow$ COMPLETED}\\
+  \end{tabularx}
+  \caption{Sequence of operations for order payment and pickup (tabular form)}
+  \label{fig:sequence}
+\end{figure}
+
+\section{Order State Diagram}
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    st/.style={draw, rounded corners, font=\small},
+    arr/.style={-{Stealth}}
+  ]
+    \node[st] (p) {PENDING};
+    \node[st, right=1.5cm of p] (c) {CONFIRMED};
+    \node[st, right=1.5cm of c] (r) {READY};
+    \node[st, right=1.5cm of r] (d) {COMPLETED};
+    \draw[arr] (p) -- node[above,font=\tiny]{pay} (c);
+    \draw[arr] (c) -- node[above,font=\tiny]{pack} (r);
+    \draw[arr] (r) -- node[above,font=\tiny]{handover} (d);
+  \end{tikzpicture}
+  \caption{Control flow / order status states}
+  \label{fig:states}
+\end{figure}
+
+\section{Database Design (E-R Diagram)}
+\begin{figure}[htbp]
+  \centering
+  \begin{tikzpicture}[
+    ent/.style={draw, rectangle, minimum width=2cm, align=center, font=\small}
+  ]
+    \node[ent] (u) {USER};
+    \node[ent, right=2.8cm of u] (o) {ORDER};
+    \node[ent, below=1.2cm of o] (oi) {ORDER\_ITEM};
+    \node[ent, left=2.8cm of oi] (m) {MENU\_ITEM};
+    \draw (u) -- node[above,font=\tiny]{places} (o);
+    \draw (o) -- node[right,font=\tiny]{contains} (oi);
+    \draw (m) -- node[below,font=\tiny]{references} (oi);
+  \end{tikzpicture}
+  \caption{Entity--relationship diagram}
+  \label{fig:er}
+\end{figure}
+
+\section{Table Schema Summary}
+Table~\ref{tab:entities} lists the four database entities and key fields (Prisma schema).
+
+\Needspace{14\baselineskip}
+\begin{table}[H]
+  \centering
+  \caption{Primary entities and key attributes}
+  \label{tab:entities}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.12}
+  \begin{tabularx}{0.88\textwidth}{@{}>{\bfseries}p{0.14\textwidth} >{\raggedright\arraybackslash}X@{}}
+    \toprule
+    Entity & Key attributes \\
+    \midrule
+    User & id, email, name, password, role, studentId, createdAt \\
+    MenuItem & id, name, description, price, category, stockQuantity, lowStockThreshold, isAvailable, isDailySpecial \\
+    Order & id, orderCode, tokenNumber, orderNumber, userId, status, paymentStatus, totalAmount, createdAt \\
+    OrderItem & id, orderId, menuItemId, quantity, unitPrice \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

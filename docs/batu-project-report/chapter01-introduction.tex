@@ -1,0 +1,42 @@
+\chapter{Introduction}
+
+\section{Background}
+Food service in college canteens differs from restaurant-style delivery platforms. Items such as samosa, vada pav, poha, tea, coffee, and daily specials are typically prepared in batches and kept as ready-to-eat stock at the counter. Students arrive in concentrated bursts between lectures, causing congestion at the ordering and payment points. Manual processes do not communicate real-time stock to students before they join the queue, and staff struggle to coordinate pickups during peak load.
+
+Digital transformation in campuses has increased expectations for mobile-accessible services. A dedicated canteen system must respect batch inventory, minimize counter interaction to pickup only, and provide staff tools for verification and stock control.
+
+\section{Problem Statement}
+The following problems motivated this project:
+\begin{enumerate}
+  \item \textbf{Queue congestion:} Students wait in line to order and pay even when food is already prepared.
+  \item \textbf{Overselling:} Orders may be accepted when physical stock is insufficient, causing dissatisfaction.
+  \item \textbf{Weak pickup coordination:} Verbal tokens and manual lists are error-prone at busy counters.
+  \item \textbf{Untracked cash sales:} Walk-in cash customers reduce stock without updating any digital record unless staff intervene manually.
+  \item \textbf{Limited planning data:} Kitchen staff lack simple forecasts for how much to prepare the next day.
+\end{enumerate}
+
+\section{Objectives}
+The primary objectives of \ShortTitle{} are:
+\begin{itemize}
+  \item To design and implement a web-based ordering system aligned with batch-prepared canteen inventory.
+  \item To enforce stock-aware cart and payment validation and deduct stock only after successful payment.
+  \item To generate a unique pickup token and QR-encoded receipt for fast staff verification on mobile devices.
+  \item To provide staff modules for queue management, inventory updates including arbitrary stock counts, and demand forecasting.
+  \item To deliver a mobile-first progressive web experience installable on phones without developing a native Android application.
+\end{itemize}
+
+\section{Scope}
+\subsection{In Scope}
+Student registration and login; menu with categories and daily special; cart and checkout; simulated digital payment; order receipt with QR; order history and reorder; staff pickup queue; QR and manual token verification; handover confirmation; inventory add/set/sold-out controls; demand forecast dashboard; mobile UI and PWA install guidance.
+
+\subsection{Out of Scope}
+Native Android/iOS applications; live UPI/payment gateway (Razorpay, etc.) in the current build; automatic deduction for cash counter sales; post-payment cancellation and automated refunds; multi-canteen franchise support; kitchen display hardware integration.
+
+\section{Proposed Solution Overview}
+Students use a browser on their phone to order only items marked available. After payment, they receive token \texttt{A154} style identifiers and a QR code. Staff mark orders ready, scan the QR or type the token, and confirm handover. Inventory staff set exact stock (e.g.\ 17 samosas) or add batch quantities and toggle sold-out status when the counter is empty.
+
+\section{Organization of Report}
+Chapter~2 reviews related work. Chapter~3 presents software requirement analysis and module decomposition. Chapter~4 describes software design with DFD and UML diagrams. Chapter~5 specifies software and hardware requirements. Chapter~6 documents implementation and code structure. Chapter~7 concludes and lists future scope. Bibliography and appendices follow.
+
+\section{Report Preparation Note}
+Cloud deployment on Vercel with PostgreSQL is documented in the project repository but was intentionally deferred during report preparation to focus on demonstration, testing, and documentation. Local demonstration uses \texttt{npm run dev} on a developer machine with optional Docker-hosted PostgreSQL.

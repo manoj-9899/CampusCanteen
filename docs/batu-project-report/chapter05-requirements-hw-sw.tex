@@ -1,0 +1,87 @@
+\chapter{Software and Hardware Requirements}
+
+\section{Introduction}
+This chapter lists software and hardware needed for development, demonstration, and future production deployment of \ShortTitle{}.
+
+\section{Software Requirements}
+
+\subsection{Development Tools}
+\begin{table}[htbp]
+  \centering
+  \caption{Development software}
+  \tablebodysetup
+  \begin{tabularx}{\textwidth}{@{}l Y@{}}
+    \toprule
+    \textbf{Software} & \textbf{Version / note} \\
+    \midrule
+    Node.js & 18.x or 20.x LTS \\
+    npm & Bundled with Node.js \\
+    Next.js & 16.x (App Router) \\
+    React & 19.x \\
+    TypeScript & 5.x \\
+    Prisma CLI & 6.x \\
+    PostgreSQL & 16 (Docker or Neon) \\
+    Git & Latest \\
+    VS Code / Cursor & Editor \\
+    Chrome DevTools & Mobile emulation, network throttling \\
+    \LaTeX{} & TeX Live or Overleaf (this report) \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\subsection{Runtime Dependencies (npm)}
+Key libraries: \texttt{@prisma/client}, \texttt{bcryptjs}, \texttt{jose} (JWT), \texttt{qrcode}, \texttt{html5-qrcode}, \texttt{recharts}, \texttt{zod}, \texttt{date-fns}, \texttt{lucide-react}, \texttt{tailwindcss}.
+
+\subsection{Browser Requirements (End Users)}
+\begin{itemize}
+  \item \textbf{Student:} Modern mobile browser; JavaScript enabled.
+  \item \textbf{Staff:} Chrome or Brave on Android recommended for QR camera; Safari on iOS supported with manual token fallback.
+  \item \textbf{PWA install:} HTTPS in production; on LAN HTTP demo, manual ``Add to Home screen'' instructions shown.
+\end{itemize}
+
+\subsection{Environment Variables}
+\begin{table}[htbp]
+  \centering
+  \caption{Configuration variables}
+  \tablebodysetup
+  \begin{tabularx}{\textwidth}{@{}l Y@{}}
+    \toprule
+    \textbf{Variable} & \textbf{Purpose} \\
+    \midrule
+    DATABASE\_URL & PostgreSQL connection string \\
+    JWT\_SECRET & Signing key for session tokens \\
+    NODE\_ENV & development / production \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Hardware Requirements}
+
+\subsection{Developer Machine}
+\begin{itemize}
+  \item CPU: Intel Core i3 or equivalent (multi-core recommended).
+  \item RAM: 8 GB minimum; 16 GB recommended for Node.js and browser testing.
+  \item Storage: 3 GB free (node\_modules, database, build artifacts).
+  \item Display: 1920$\times$1080 helpful for DevTools mobile preview.
+\end{itemize}
+
+\subsection{Demonstration Setup (Viva)}
+\begin{itemize}
+  \item One laptop running development server (\texttt{npm run dev}, port 3000).
+  \item Two smartphones (or one phone + laptop) for student and staff roles.
+  \item Wi-Fi router allowing devices on same subnet.
+  \item Optional: Docker Desktop for local PostgreSQL container.
+\end{itemize}
+
+\subsection{Future Production Server}
+Cloud hosting (e.g.\ Vercel serverless functions) does not require college-owned server hardware; managed PostgreSQL (Neon, Vercel Postgres) provides database hardware. Estimated concurrent users for mini project: 50--100 simultaneous browser sessions before requiring scaling review.
+
+\section{Network Requirements}
+\begin{itemize}
+  \item Local demo: firewall allows inbound TCP port 3000 on laptop; phones use \texttt{http://<laptop-IP>:3000}.
+  \item Production: HTTPS TLS 1.2+; stable outbound internet for hosting provider.
+  \item Slow network: client uses 20s fetch timeout and offline detection banner.
+\end{itemize}
+
+\section{Data Storage Requirements}
+PostgreSQL database size for one semester demo: $<$ 100 MB (users, orders, menu). Backup policy in production: daily automated snapshots (future work).

@@ -1,0 +1,10 @@
+% Shared table formatting — keeps tables within page margins
+\usepackage{tabularx}
+\usepackage{ragged2e}
+\usepackage{array}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{C}{>{\centering\arraybackslash}X}
+
+% Use inside table environments before tabularx
+\newcommand{\tablebodysetup}{\small\setlength{\tabcolsep}{4pt}}

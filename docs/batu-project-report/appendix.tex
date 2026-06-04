@@ -1,0 +1,81 @@
+\chapter{Appendices}
+
+\section{Demonstration Accounts}
+\begin{table}[htbp]
+  \centering
+  \caption{Login credentials (seed data --- change in production)}
+  \tablebodysetup
+  \begin{tabularx}{0.72\textwidth}{@{}l l l@{}}
+    \toprule
+    \textbf{Role} & \textbf{Email} & \textbf{Password} \\
+    \midrule
+    Student & student@college.edu & student123 \\
+    Staff & staff@canteen.edu & staff123 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Seeded Menu Items}
+\begin{table}[htbp]
+  \centering
+  \caption{Default menu (demonstration)}
+  \tablebodysetup
+  \begin{tabularx}{0.88\textwidth}{@{}l r Y@{}}
+    \toprule
+    \textbf{Item} & \textbf{Price (\inr)} & \textbf{Initial stock note} \\
+    \midrule
+    Samosa & 20 & Available (25) \\
+    Vada Pav & 25 & Available (30) \\
+    Poha & 30 & Available (20) \\
+    Tea & 10 & Available (50) \\
+    Coffee & 15 & Out of stock (demo) \\
+    Misal Pav & 60 & Today's special, low stock \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{UI Screenshots}
+All interface figures are included in Chapter~\ref{sec:ui-screenshots} (Section ``Screenshots of the Developed System'').
+
+\section{Test Cases}
+\label{app:tests}
+\Needspace{10\baselineskip}
+\begin{table}[H]
+  \centering
+  \caption{Manual test case document}
+  \tablebodysetup
+  \begin{tabularx}{\textwidth}{@{}c l Y Y@{}}
+    \toprule
+    \textbf{ID} & \textbf{Module} & \textbf{Steps} & \textbf{Expected} \\
+    \midrule
+    T1 & Auth & Login as student & Menu page loads \\
+    T2 & Auth & Login as staff & Staff dashboard loads \\
+    T3 & Menu & Add item to cart & Toast shown; count increases \\
+    T4 & Cart & Review with valid stock & Proceed to payment \\
+    T5 & Cart & Review with qty $>$ stock & Error 409; message shown \\
+    T6 & Pay & Complete payment & Token, QR, CONFIRMED \\
+    T7 & Stock & Order sold-out item & Blocked before payment \\
+    T8 & Staff & Set Samosa stock to 17 & Menu shows updated qty \\
+    T9 & Staff & Mark order ready & READY\_FOR\_PICKUP \\
+    T10 & Staff & Scan QR & Verify success; handover button \\
+    T11 & Staff & Confirm handover & COMPLETED \\
+    T12 & Mobile & Open on phone browser & Layout not clipped \\
+    T13 & PWA & Install hint visible & Banner or iOS instructions \\
+    T14 & Offline & Disable network; order & Offline banner / error \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Sample JSON --- Inventory Update}
+\begin{lstlisting}[caption={PATCH /api/inventory --- set 17 samosas}]
+{
+  "menuItemId": "clxxxxxxxx",
+  "stockQuantity": 17
+}
+\end{lstlisting}
+
+\section{Order Status Enum (Reference)}
+\texttt{PENDING}, \texttt{CONFIRMED}, \texttt{READY\_FOR\_PICKUP}, \texttt{COLLECTED}, \texttt{COMPLETED}, \texttt{CANCELLED}.
+
+\section{Project Repository}
+Source code path: \texttt{canteen-preorder/} within the mini project workspace. Run instructions: see \texttt{README.md} in repository root.

@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fffbf7;
+  --foreground: #0f172a;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html {
+  height: 100%;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100%;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  background: var(--background);
+  color: var(--foreground);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+  padding-bottom: var(--safe-bottom);
+}
+
+/* Prevent iOS zoom on input focus (needs 16px+ font) */
+input,
+select,
+textarea,
+button {
+  font-size: inherit;
+}
+
+input,
+select,
+textarea {
+  font-size: 1rem;
+}
+
+/* Minimum touch target helper (WCAG ~44px) */
+.touch-target {
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+}
+
+.touch-target-sm {
+  min-height: 2.25rem;
+  min-width: 2.25rem;
+}
+
+/* Reduce tap delay on interactive elements */
+button,
+a,
+[role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* html5-qrcode live preview */
+.qr-scanner-view video,
+.qr-scanner-view #qr-shaded-region,
+.qr-scanner-view img {
+  max-width: 100% !important;
+}
+
+.qr-scanner-view div[id^="qr-reader"] video {
+  width: 100% !important;
+  min-height: min(280px, 45vh) !important;
+  max-height: 50vh !important;
+  object-fit: cover !important;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .qr-scanner-view div[id^="qr-reader"] video,
+  .qr-scanner-view video {
+    min-height: 40vh !important;
+    max-height: 70vh !important;
+  }
+}

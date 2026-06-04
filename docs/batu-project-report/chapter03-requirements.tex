@@ -1,0 +1,118 @@
+\chapter{Software Requirement Analysis}
+
+\section{Introduction}
+This chapter defines the problem in operational terms, identifies stakeholders, and specifies functional and non-functional requirements. Modules are decomposed with responsibilities suitable for implementation in Next.js API routes and React components.
+
+\section{Problem Definition}
+The canteen operates with finite ready-to-eat stock. Students should complete ordering and payment before reaching the counter, presenting only a token/QR for pickup. The system must never confirm payment for items that exceed app-tracked stock at payment time. Staff must update stock when physical count differs from the database (e.g.\ exactly 17 samosas remaining) because cash sales are not automatically recorded.
+
+\section{Stakeholders}
+\begin{itemize}
+  \item \textbf{Student:} Browses menu, pays online, monitors order status, displays QR at pickup.
+  \item \textbf{Canteen staff:} Monitors queue, prepares food, verifies pickup, updates inventory.
+  \item \textbf{Project guide / examiner:} Evaluates completeness, documentation, and demonstration.
+  \item \textbf{College IT (future):} May host HTTPS deployment and database backups.
+\end{itemize}
+
+\section{Assumptions and Constraints}
+\begin{itemize}
+  \item One canteen outlet; single menu list.
+  \item Simulated payment acceptable for academic demonstration.
+  \item Staff have smartphones with camera for QR scanning.
+  \item Internet available on campus Wi-Fi or mobile data.
+  \item English UI; currency in Indian Rupees (\inr).
+\end{itemize}
+
+\section{Functional Requirements}
+
+\subsection{FR1 -- Authentication}
+\begin{itemize}
+  \item FR1.1: User shall register with email, name, and optional student ID.
+  \item FR1.2: User shall login with email and password.
+  \item FR1.3: System shall assign role STUDENT or STAFF and enforce route access.
+  \item FR1.4: Session shall persist using secure HTTP-only cookie (JWT).
+\end{itemize}
+
+\subsection{FR2 -- Student Menu and Cart}
+\begin{itemize}
+  \item FR2.1: Display menu with emoji, price, description, category filter.
+  \item FR2.2: Show availability: Available, Only N left, Sold out.
+  \item FR2.3: Highlight today's special item.
+  \item FR2.4: Cart quantity shall not exceed \texttt{stockQuantity}.
+  \item FR2.5: Reorder last paid order when items still available.
+\end{itemize}
+
+\subsection{FR3 -- Order and Payment}
+\begin{itemize}
+  \item FR3.1: Validate cart stock via API before review step.
+  \item FR3.2: Create order in PENDING state with line items.
+  \item FR3.3: Process simulated payment; on success set CONFIRMED and deduct stock.
+  \item FR3.4: Generate unique \texttt{orderCode}, \texttt{tokenNumber}, and QR image.
+\end{itemize}
+
+\subsection{FR4 -- Pickup and Staff}
+\begin{itemize}
+  \item FR4.1: List paid orders in staff queue with polling refresh.
+  \item FR4.2: Staff marks CONFIRMED $\rightarrow$ READY\_FOR\_PICKUP.
+  \item FR4.3: Verify by QR scan or manual token/order code entry.
+  \item FR4.4: Confirm handover $\rightarrow$ COMPLETED.
+\end{itemize}
+
+\subsection{FR5 -- Inventory}
+\begin{itemize}
+  \item FR5.1: Staff sets exact \texttt{stockQuantity} (custom count).
+  \item FR5.2: Staff adds quantity to existing stock (\texttt{addStock}).
+  \item FR5.3: Staff toggles \texttt{isAvailable} for sold-out online.
+\end{itemize}
+
+\subsection{FR6 -- Forecast}
+\begin{itemize}
+  \item FR6.1: Display predicted demand per item and suggested batch size.
+  \item FR6.2: Show disclaimer when historical data is limited.
+\end{itemize}
+
+\section{Non-Functional Requirements}
+\begin{table}[htbp]
+  \centering
+  \caption{Non-functional requirements}
+  \tablebodysetup
+  \begin{tabularx}{\textwidth}{@{}l l Y@{}}
+    \toprule
+    \textbf{ID} & \textbf{Category} & \textbf{Specification} \\
+    \midrule
+    NFR1 & Usability & Mobile-first; bottom navigation; min.\ touch target 44px \\
+    NFR2 & Performance & Menu API cache 8s; poll only when tab visible \\
+    NFR3 & Reliability & Stock checks at cart, order, payment \\
+    NFR4 & Security & bcrypt passwords; staff-only inventory APIs \\
+    NFR5 & Compatibility & Chrome Android, Safari iOS, responsive CSS \\
+    NFR6 & Maintainability & TypeScript, modular components, Prisma schema \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Module Decomposition}
+\begin{table}[htbp]
+  \centering
+  \caption{Modules and functionalities}
+  \tablebodysetup
+  \begin{tabularx}{\textwidth}{@{}>{\bfseries}p{0.22\textwidth} Y@{}}
+    \toprule
+    \textbf{Module} & \textbf{Responsibilities} \\
+    \midrule
+    AuthModule & Login, register, JWT session, role guard \\
+    MenuModule & Fetch items, enrich stock labels, daily special \\
+    CartModule & Client cart state, validate against server \\
+    OrderModule & Create order, status transitions, history \\
+    PaymentModule & Simulated pay, stock deduction, token issue \\
+    ReceiptModule & QR generation, fullscreen display, polling \\
+    QueueModule & Staff list, mark ready, visibility polling \\
+    VerifyModule & Parse QR, match order, handover confirm \\
+    InventoryModule & PATCH stock, availability toggle \\
+    ForecastModule & Aggregate history, weighted average \\
+    PWAModule & Manifest, service worker, install UI hints \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\section{Order Status Rules}
+Paid orders progress: \texttt{CONFIRMED} (paid, preparing) $\rightarrow$ \texttt{READY\_FOR\_PICKUP} $\rightarrow$ \texttt{COMPLETED} after verification and handover. \texttt{PENDING} exists only before payment. \texttt{CANCELLED} is reserved for future refund workflows.

@@ -1,0 +1,43 @@
+\chapter{Conclusion and Future Scope}
+
+\section{Conclusion}
+The \ShortTitle{} project delivers a complete software solution for inventory-aware canteen pre-ordering suited to college environments where food is prepared in batches. Students benefit from transparent stock information, streamlined payment, and QR-based pickup. Staff benefit from a structured queue, verification tools, custom inventory updates, and introductory demand forecasting.
+
+The implementation demonstrates competence in full-stack web development: relational data modeling with Prisma, secure authentication, REST API design, mobile-first user experience, and integration of QR technology. The project aligns with the B.Tech Computer Engineering mini project objectives at Dr.\ Babasaheb Ambedkar Technological University, Lonere, including problem identification, literature review, structured design with DFD and UML diagrams, requirement analysis, coding, and testing documentation.
+
+The choice of a progressive web application instead of a native Android app reduces development and maintenance cost while still supporting phone-based demonstration---a practical decision for academic scope and campus rollout.
+
+\section{Achievements}
+\begin{itemize}
+  \item End-to-end student order-to-pickup flow with simulated payment.
+  \item Multi-stage stock validation and post-payment stock deduction.
+  \item Staff mobile workflow including QR scan and manual token entry.
+  \item Custom inventory ``Set to N'' for real kitchen counts.
+  \item Mobile-first UI with PWA install guidance.
+  \item Comprehensive technical documentation and LaTeX project report.
+\end{itemize}
+
+\section{Limitations}
+\begin{itemize}
+  \item Payment gateway is simulated; no live UPI settlement.
+  \item Cash counter sales require manual staff inventory updates.
+  \item Cloud deployment prepared but deferred during report submission phase.
+  \item Forecast accuracy limited without months of production data.
+  \item No automated refund/cancel after payment in current version.
+  \item Open registration may be unsuitable for public internet without hardening.
+\end{itemize}
+
+\section{Future Scope}
+\begin{enumerate}
+  \item \textbf{Production deployment:} Vercel + PostgreSQL (Neon), HTTPS, environment secrets, CI/CD pipeline.
+  \item \textbf{Real payments:} Integrate Razorpay or PayU for UPI, cards, and receipts.
+  \item \textbf{Operational policies:} Cancel/refund workflow with stock restoration and audit log.
+  \item \textbf{Admin module:} Analytics dashboard, menu CRUD, staff account provisioning.
+  \item \textbf{Notifications:} Web Push (VAPID) for reliable ``order ready'' alerts on iOS/Android.
+  \item \textbf{Security:} Rate limiting, CAPTCHA on register, domain-restricted staff emails.
+  \item \textbf{Forecasting:} Day-of-week features, special event tags, export CSV for kitchen.
+  \item \textbf{Hardware:} Optional thermal printer for token slip backup if QR fails.
+\end{enumerate}
+
+\section{Closing Remarks}
+\ShortTitle{} shows that a well-designed web application can address real campus canteen pain points without immediate investment in native mobile development. Continued work should focus on trustworthy payments, production hosting, and day-to-day staff discipline in stock updates so the digital inventory reflects the physical counter.
