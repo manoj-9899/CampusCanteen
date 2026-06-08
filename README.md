@@ -52,9 +52,14 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
-### Deploy online (Vercel)
+### Deploy online
 
-Full guide: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** — GitHub → Vercel → Postgres → env vars → seed once.
+| Platform | Guide |
+|----------|--------|
+| **Netlify** (recommended for demo URL) | **[docs/NETLIFY.md](docs/NETLIFY.md)** |
+| Vercel | **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** |
+
+Production requires **PostgreSQL** (free Neon account). Local dev stays on SQLite.
 
 ### Test on phone + laptop (same Wi‑Fi)
 
