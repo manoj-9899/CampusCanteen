@@ -38,19 +38,17 @@ On **Staff → Inventory**, for each item:
 
 ## Quick start (local demo)
 
-Uses **PostgreSQL** (same as Vercel). Easiest local setup: **Docker**.
+**Full setup for Windows & Mac:** see **[SETUP.md](SETUP.md)** (share with your project partner).
+
+Uses **SQLite** — one file in `prisma/dev.db`, no Docker or database server.
 
 ```bash
 cd canteen-preorder
 copy .env.example .env
-npm run db:local:up
 npm install
 npm run db:setup
 npm run dev
 ```
-
-Requires [Docker Desktop](https://www.docker.com/products/docker-desktop/).  
-No Docker? Use a free [Neon](https://neon.tech) URL in `.env` instead — see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 Open [http://localhost:3000](http://localhost:3000)
 
@@ -93,7 +91,7 @@ If the phone cannot connect at all, allow **Node.js** through Windows Firewall f
 ## Tech stack
 
 - Next.js 16 · TypeScript · Tailwind CSS
-- Prisma · PostgreSQL (local Docker or Neon; Vercel Postgres in production)
+- Prisma · SQLite (local file database)
 - JWT session cookies
 - QR codes (`qrcode` package)
 - Recharts (staff demand forecast)
