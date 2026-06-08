@@ -2,18 +2,16 @@
 % Compile: pdflatex main.tex (run twice for TOC) or use Overleaf
 \documentclass[12pt,a4paper]{report}
 
-\usepackage[margin=1in]{geometry}
-\usepackage{setspace}
-\onehalfspacing
+\usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage{mathptmx} % Times New Roman-like
+\usepackage[margin=1in]{geometry}
+\usepackage{mathptmx}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{needspace}
 \usepackage{float}
-\input{table-setup}
-
-\newcommand{\inr}{Rs.} % Indian Rupee (PDF-safe; avoids missing ₹ glyph)
+\usepackage{fancyhdr}
+\usepackage{cite}
 \usepackage{hyperref}
 \usepackage{enumitem}
 \usepackage{listings}
@@ -22,16 +20,37 @@
 \usepackage{titlesec}
 \usepackage{xcolor}
 \usepackage{tikz}
+\input{table-setup}
 
-% Placeholder marker — shows in PDF until you edit student-info.tex
+\newcommand{\inr}{Rs.}
 \newcommand{\fillme}[1]{\textcolor{red}{\textbf{[FILL: #1]}}}
 \input{student-info}
+\linespread{1.3}
+
+% Header + centered page number only (no footer text)
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\ShortTitle}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \cfoot{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+  \renewcommand{\footrulewidth}{0pt}%
+}
 \usetikzlibrary{shapes,arrows,arrows.meta,positioning,fit,shapes.multipart,shapes.geometric}
 
-% Chapter 18pt left, section 16pt, subsection 14pt (per guide)
 \titleformat{\chapter}[hang]{\bfseries\fontsize{18}{22}\selectfont}{\thechapter}{1em}{}
+\titleformat{name=\chapter,numberless}[block]
+  {\centering\bfseries\fontsize{18}{22}\selectfont}
+  {}{0pt}{}
+\titlespacing*{name=\chapter,numberless}{0pt}{0pt}{1.2em}
 \titleformat{\section}{\bfseries\fontsize{16}{19}\selectfont}{\thesection}{1em}{}
 \titleformat{\subsection}{\bfseries\fontsize{14}{17}\selectfont}{\thesubsection}{1em}{}
+
+\renewcommand{\contentsname}{Contents}
 
 \captionsetup[figure]{position=bottom,labelfont=bf}
 \captionsetup[table]{position=top,labelfont=bf}
@@ -48,17 +67,26 @@
 
 \begin{document}
 
-% Roman numbering: Certificate through List of Tables (items 2--8 in guide)
-\pagenumbering{roman}
 \input{frontmatter}
-\tableofcontents
-\listoffigures
-\listoftables
-\cleardoublepage
 
-% Arabic numbering from Chapter 1
+% ==================== LISTS ====================
+\newpage
+\tableofcontents
+\thispagestyle{plain}
+\newpage
+\listoffigures
+\addcontentsline{toc}{chapter}{List of Figures}
+\thispagestyle{plain}
+\newpage
+\listoftables
+\addcontentsline{toc}{chapter}{List of Tables}
+\thispagestyle{plain}
+
+% ==================== MAIN BODY ====================
+\newpage
 \pagenumbering{arabic}
 \setcounter{page}{1}
+\pagestyle{fancy}
 
 \input{chapter01-introduction}
 \input{chapter02-literature}
@@ -68,7 +96,5 @@
 \input{chapter06-coding}
 \input{chapter07-conclusion}
 \input{bibliography}
-\appendix
-\input{appendix}
 
 \end{document}

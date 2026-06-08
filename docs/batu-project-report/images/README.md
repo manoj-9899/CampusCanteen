@@ -4,8 +4,7 @@ Save **PNG** files here with the exact names below. Figures appear in **Chapter 
 
 ## Before you capture
 
-1. Start database (if using Docker): `npm run db:local:up` from project root.
-2. Seed data: `npm run db:setup`
+1. Seed data: `npm run db:setup` from project root.
 3. Run app: `npm run dev` → open **http://localhost:3000**
 
 ## Demo logins

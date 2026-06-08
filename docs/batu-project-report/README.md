@@ -19,7 +19,7 @@ LaTeX report following **Department of Computer Engineering, BATU Lonere** PDF f
 | Name | Manoj Shivaji Pawar |
 | Roll No. | 23030331245027 |
 | Guide | Assistant Professor Uzma Munde |
-| HOD | Dr. Arwind Kiwlekar |
+| HOD | Dr. Arwind Kiweleker |
 | Year / Date | 2025--26 / 08-05-2026 |
 
 **Certificate examiners:** blank lines (fill by hand after viva).  

@@ -1,83 +1,129 @@
-% Front Page
+% ==================== TITLE PAGE ====================
 \begin{titlepage}
-  \centering
-  \vspace*{0.8cm}
-  {\fontsize{18}{22}\selectfont\bfseries \ShortTitle\par}
-  \vspace{0.5cm}
-  {\fontsize{14}{18}\selectfont\itshape Inventory-Aware Smart Canteen Ordering with Token and QR Pickup\par}
-  \vspace{0.8cm}
-  {\fontsize{16}{20}\selectfont A Project Report\par}
-  \vspace{0.6cm}
-  {\fontsize{14}{18}\selectfont
-    submitted in partial fulfillment of the requirements\\
-    for the award of the degree of\\
-    Bachelor of Technology\\
-    in\\
-    COMPUTER ENGINEERING\par}
-  \vspace{1cm}
-  {\fontsize{14}{18}\selectfont by\par}
-  \vspace{0.4cm}
-  {\fontsize{14}{18}\selectfont \StudentName\par}
-  {\fontsize{14}{18}\selectfont (\RollNo)\par}
-  \vspace{0.8cm}
-  {\fontsize{14}{18}\selectfont Under the guidance of\par}
-  \vspace{0.3cm}
-  {\fontsize{14}{18}\selectfont \GuideName\par}
-  \vfill
-  \includegraphics[width=2.4cm]{images/batu_logo.jpg}\\[0.5cm]
-  {\fontsize{12}{15}\selectfont
-    DEPARTMENT OF COMPUTER ENGINEERING\\
-    DR. BABASAHEB AMBEDKAR TECHNOLOGICAL UNIVERSITY\\
-    Lonere--402103, Tal.\ Mangaon, Dist.\ Raigad (MS) INDIA\par}
-  \vspace{0.5cm}
-  {\fontsize{14}{18}\selectfont \AcademicYear\par}
+  \thispagestyle{empty}
+  \begin{center}
+    \vspace*{0.2cm}
+    {\Huge \bfseries \ShortTitle} \\[0.4cm]
+    {\large \itshape \ProjectSubtitle} \\
+
+    \vfill
+
+    {\large \bfseries A Project Report} \\[0.4cm]
+    {\large submitted in partial fulfillment of the requirements} \\
+    {\large for the award of the degree of} \\
+    {\large \bfseries Bachelor of Technology} \\
+    {\large in} \\
+    {\large \bfseries COMPUTER ENGINEERING} \\[0.6cm]
+    {\large \bfseries by} \\[0.6cm]
+    {\large \bfseries \StudentName\ (\RollNo)} \\
+    {\large \bfseries \StudentTwoName\ (\StudentTwoRoll)} \\
+    {\large \bfseries \StudentThreeName\ (\StudentThreeRoll)} \\
+
+    \vfill
+
+    {\large \bfseries Under the guidance of} \\[0.4cm]
+    {\large \bfseries \GuideName} \\
+
+    \vfill
+
+    \includegraphics[width=3cm]{images/batu_logo.jpg} \\
+
+    \vfill
+
+    {\large \bfseries DEPARTMENT OF COMPUTER ENGINEERING} \\
+    {\large \bfseries DR. BABASAHEB AMBEDKAR TECHNOLOGICAL UNIVERSITY} \\
+    {\large Lonere--402103, Tal.\ Mangaon, Dist.\ Raigad (MS) INDIA} \\
+    {\large \bfseries \AcademicYear}
+  \end{center}
 \end{titlepage}
 
-% Certificate
-\chapter*{Certificate}
+% ==================== ROMAN NUMERALS (FRONT MATTER) ====================
+\newpage
+\pagenumbering{roman}
+
+% ==================== CERTIFICATE ====================
 \addcontentsline{toc}{chapter}{Certificate}
-\vspace{0.5em}
+\thispagestyle{plain}
+\vspace*{0.5cm}
+\begin{center}
+  {\Large\bfseries Certificate}
+\end{center}
+\vspace{0.6cm}
 \noindent
-The report entitled \textbf{\ProjectTitle} submitted by \textbf{\StudentName} (\RollNo) is approved for the partial fulfillment of the requirement for the award of the degree of Bachelor of Technology in Computer Engineering.
-\vspace{2em}
+The report entitled {\bfseries \CertificateTitle} submitted by {\bfseries \StudentName} (\RollNo),\\ {\bfseries \StudentTwoName} (\StudentTwoRoll), and {\bfseries \StudentThreeName} (\StudentThreeRoll) is approved for the partial fulfillment of the requirement for the award of the degree of Bachelor of Technology in Computer Engineering.
 
+\vspace*{1.5cm}
 \noindent
-\tablebodysetup
-\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{0.46\textwidth} >{\bfseries}p{0.46\textwidth}@{}}
-  Guide & Head of Department \\
-  \GuideInitials & \HODName \\
-  Department of Computer Engineering & Department of Computer Engineering \\
-\end{tabularx}
+\begin{minipage}[t]{0.45\textwidth}
+  \centering
+  \textbf{Guide}\\
+  \textbf{\GuideInitials}\\
+  Department of Computer Engineering
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.45\textwidth}
+  \centering
+  \textbf{Head of Department}\\
+  \textbf{\HODName}\\
+  Department of Computer Engineering
+\end{minipage}
 
-\vspace{2em}
-\noindent\textbf{Examiners:}
-\begin{enumerate}[label=\arabic*.]
-  \item \rule{6cm}{0.4pt} \quad (Name: \rule{5cm}{0.4pt})
-  \item \rule{6cm}{0.4pt} \quad (Name: \rule{5cm}{0.4pt})
-\end{enumerate}
+\vspace*{2.2cm}
+\noindent
+{\bfseries Examiners:} \\[0.5cm]
+\noindent
+\begin{tabular}{@{}l p{5.5cm} l p{5.5cm}}
+  1. & \rule{5cm}{0.4pt} & (Name: & \rule{5cm}{0.4pt}) \\
+  \addlinespace[1.5em]
+  2. & \rule{5cm}{0.4pt} & (Name: & \rule{5cm}{0.4pt}) \\
+\end{tabular}
 
-\vspace{1em}
-\noindent Place: Dr.\ Babasaheb Ambedkar Technological University, Lonere\\
-Date: \ReportDate
+\vspace*{1.5cm}
+\noindent
+Place: Dr.\ Babasaheb Ambedkar Technological University, Lonere \\
+Date:
 
-% Acknowledgements
+% ==================== ACKNOWLEDGEMENTS ====================
+\newpage
 \chapter*{Acknowledgements}
 \addcontentsline{toc}{chapter}{Acknowledgements}
-I would like to express my sincere gratitude to my project guide, \textbf{\GuideName}, for valuable suggestions, regular reviews, and encouragement throughout this work. I am thankful to \textbf{\HODName}, Head of the Department of Computer Engineering, and all faculty members of the department for academic support.
+\thispagestyle{plain}
+\noindent
+We would like to express our sincere gratitude to our project guide, {\bfseries \GuideName}, for valuable suggestions, regular reviews, and constant encouragement throughout this work. We are also thankful to {\bfseries \HODName}, Head of the Department of Computer Engineering, and all faculty members of the department for academic guidance and support.
 
-I thank my classmates and \AckFriends, for helpful discussions and testing of the application. I am deeply grateful to \AckFamily, for their constant motivation.
+We thank our classmates and \AckFriends\ for helpful discussions, testing support, and feedback which helped shape the final implementation of the web interface. We are deeply grateful to \AckFamily\ for their constant motivation, patience, and encouragement.
 
-I also acknowledge the open-source communities behind Next.js, Prisma, and related tools that made implementation feasible within the project timeline.
+We also acknowledge the open-source communities behind Next.js, Prisma, React, and related tools that made the implementation of this system feasible within the project timeline.
 
-% Abstract
+\vspace*{1.5cm}
+\begin{flushright}
+  \hspace*{-2cm}\textbf{\StudentName}\\
+  \hspace*{-2cm}PRN: \RollNo\\[0.2cm]
+  \hspace*{-2cm}\textbf{\StudentTwoName}\\
+  \hspace*{-2cm}PRN: \StudentTwoRoll\\[0.2cm]
+  \hspace*{-2cm}\textbf{\StudentThreeName}\\
+  \hspace*{-2cm}PRN: \StudentThreeRoll
+\end{flushright}
+
+% ==================== ABSTRACT ====================
+\newpage
 \chapter*{Abstract}
 \addcontentsline{toc}{chapter}{Abstract}
+\thispagestyle{plain}
 \noindent
-College canteens serving ready-to-eat food face long queues and overselling when batch-prepared stock is limited. \textbf{\ShortTitle{}} is a web-based, inventory-aware ordering system that lets students browse live menu availability, pre-order items, pay online (simulated gateway for demonstration), and collect food using a pickup token and QR code on a mobile-friendly digital receipt. Canteen staff use the same web application on mobile browsers to manage a pickup queue, mark orders ready, verify QR codes or tokens, confirm handover, update inventory with custom stock quantities (e.g.\ setting exact count to 17 units), and view a demand forecast for next-day preparation.
+College canteens serving ready-to-eat food face long queues and overselling when batch-prepared stock is limited. {\bfseries \ShortTitle{}} is a web-based, inventory-aware ordering system that lets students browse live menu availability, pre-order items, pay online (simulated gateway for demonstration), and collect food using a pickup token and QR code on a mobile-friendly digital receipt. Canteen staff use the same web application on mobile browsers to manage a pickup queue, mark orders ready, verify QR codes or tokens, confirm handover, update inventory with custom stock quantities (e.g.\ setting exact count to 17 units), and view a demand forecast for next-day preparation.
 
-The system is built with Next.js 16, React 19, TypeScript, Tailwind CSS, Prisma ORM, and PostgreSQL. JWT-based authentication enforces separate student and staff roles. Stock is validated when the cart is reviewed, when an order is created, and when payment is processed; inventory is decremented only after successful payment. The interface is mobile-first and supports progressive web application installation on student and staff phones without a native Android application.
+\vspace{15pt}
 
+\noindent
+The system is built with Next.js 16, React 19, TypeScript, Tailwind CSS, Prisma ORM, and SQLite. JWT-based authentication enforces separate student and staff roles. Stock is validated when the cart is reviewed, when an order is created, and when payment is processed; inventory is decremented only after successful payment. The interface is mobile-first and supports progressive web application installation on student and staff phones without a native Android application.
+
+\vspace{15pt}
+
+\noindent
 Testing on desktop and mobile browsers confirms end-to-end ordering, stock enforcement, staff verification, and inventory updates. Future work includes real UPI integration, production deployment on HTTPS, automated backups, and refund policies.
 
-\vspace{0.5em}
-\noindent\textbf{Keywords:} Smart canteen, inventory management, pre-ordering, QR code verification, pickup token, demand forecasting, progressive web application, Next.js, PostgreSQL.
+\vspace{15pt}
+
+\noindent
+\textbf{Keywords:} Smart canteen, inventory management, pre-ordering, QR code verification, pickup token, demand forecasting, progressive web application, Next.js, SQLite.
