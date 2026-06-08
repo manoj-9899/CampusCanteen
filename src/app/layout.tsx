@@ -56,6 +56,13 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full bg-orange-50/40 font-sans text-slate-900">
+        {process.env.NODE_ENV === "development" && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `(function(){if(!("serviceWorker"in navigator))return;navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(x){x.unregister()})});if("caches"in window)caches.keys().then(function(k){k.forEach(function(n){caches.delete(n)})})})();`,
+            }}
+          />
+        )}
         <AuthProvider>
           <PwaRegister />
           <Navbar />

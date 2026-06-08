@@ -3,15 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --hostname 0.0.0.0",
+    "dev": "next dev --hostname 0.0.0.0 -p 3000",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:setup": "prisma db push && tsx prisma/seed.ts",
-    "db:local:up": "docker compose up -d",
-    "db:local:down": "docker compose down",
     "postinstall": "prisma generate"
   },
   "prisma": {

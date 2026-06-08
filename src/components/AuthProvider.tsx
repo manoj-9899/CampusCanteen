@@ -1,6 +1,13 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { usePathname, useRouter } from "next/navigation";
 import type { SessionUser } from "@/types";
 import { fetchJson } from "@/lib/fetch-client";
 
@@ -18,7 +25,11 @@ const AuthContext = createContext<AuthContextType>({
   logout: async () => {},
 });
 
+const AUTH_PAGES = ["/login", "/register"];
+
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<SessionUser | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -29,8 +40,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         stale?: boolean;
       }>("/api/auth/session", { timeoutMs: 12_000 });
       setUser(data.user);
-      if (data.stale && typeof window !== "undefined") {
-        window.location.href = "/login";
+
+      if (data.stale) {
+        setUser(null);
+        const path =
+          typeof window !== "undefined" ? window.location.pathname : pathname;
+        if (!AUTH_PAGES.includes(path)) {
+          router.replace("/login");
+        }
       }
     } catch {
       setUser(null);
@@ -42,11 +59,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await fetch("/api/auth/session", { method: "DELETE" });
     setUser(null);
-    window.location.href = "/login";
+    router.replace("/login");
   };
 
   useEffect(() => {
     refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
   }, []);
 
   return (

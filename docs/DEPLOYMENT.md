@@ -1,58 +1,34 @@
-# CampusCanteen — Local demo + Vercel deploy
+# CampusCanteen — Local demo + optional Vercel deploy
 
-You can run the **same app** in two places:
+## Part 1 — Local machine demo (SQLite)
 
-| Where | Database | URL |
-|-------|----------|-----|
-| **Your laptop** (viva demo) | PostgreSQL (Docker or Neon) | `http://localhost:3000` |
-| **Vercel** (public link) | PostgreSQL (Vercel Postgres / Neon) | `https://your-app.vercel.app` |
-
-The app code is identical. Only `DATABASE_URL` and `JWT_SECRET` change per environment.
-
----
-
-## Part 1 — Local machine demo
-
-### Option A — Docker Postgres (recommended, works offline)
-
-**Requirements:** [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+No Docker, no Postgres install. The database is a single file: `prisma/dev.db`.
 
 ```bash
 cd canteen-preorder
 
 # 1. Environment
 copy .env.example .env
-# Edit .env — DATABASE_URL should be:
-# postgresql://canteen:canteen@localhost:5432/canteen
+# DATABASE_URL should be: file:./dev.db
 
-# 2. Start database
-docker compose up -d
-
-# 3. Install & create tables + demo data
+# 2. Install & create tables + demo data
 npm install
 npm run db:setup
 
-# 4. Run app
+# 3. Run app
 npm run dev
 ```
 
 Open **http://localhost:3000**  
 Phone on same Wi‑Fi: **http://YOUR_LAPTOP_IP:3000** (see README).
 
-Stop database when done: `docker compose down`
-
-### Option B — Neon (no Docker, needs internet)
-
-1. Sign up at [https://neon.tech](https://neon.tech) (free).
-2. Create a project → copy **connection string**.
-3. Put it in `.env` as `DATABASE_URL` (include `?sslmode=require` if Neon shows it).
-4. Run `npm run db:setup` then `npm run dev`.
-
-Use a **separate** Neon branch or project for production on Vercel so demo data on your laptop does not overwrite live data.
+**Reset demo data anytime:** `npm run db:seed`
 
 ---
 
-## Part 2 — Deploy on Vercel
+## Part 2 — Deploy on Vercel (optional)
+
+Local dev uses SQLite. For a public Vercel deploy you need **PostgreSQL** (Vercel Postgres or Neon) and must change `provider` in `prisma/schema.prisma` from `sqlite` to `postgresql`, then set a `postgresql://…` `DATABASE_URL`.
 
 ### Prerequisites
 
@@ -74,20 +50,19 @@ Use a **separate** Neon branch or project for production on Vercel so demo data 
 
    | Name | Value |
    |------|--------|
-   | `DATABASE_URL` | From Vercel Postgres / Neon (auto-linked if using Vercel Storage) |
+   | `DATABASE_URL` | From Vercel Postgres / Neon |
    | `JWT_SECRET` | Long random string (not the dev example from `.env.example`) |
 
 5. **Deploy** — first build may succeed before tables exist.
 
-6. **Create tables + seed once** (from your laptop, with production `DATABASE_URL`):
+6. **Create tables + seed once** (from your laptop, with production `DATABASE_URL` and `postgresql` provider in schema):
 
    ```bash
-   # Temporarily set DATABASE_URL to the Vercel/Neon production URL, then:
    npx prisma db push
    npm run db:seed
    ```
 
-   Or use Vercel CLI / Neon SQL console. **Run seed only once** — it resets orders and users.
+   **Run seed only once** on production — it resets orders and users.
 
 7. Open your `https://….vercel.app` URL and log in with demo accounts from README.
 
@@ -96,35 +71,13 @@ Use a **separate** Neon branch or project for production on Vercel so demo data 
 - **Build command:** `prisma generate && next build` (already in `package.json` `build`)
 - **Install:** `npm install` runs `postinstall` → `prisma generate`
 
-Do **not** add `prisma db push` to every production deploy unless you intend to apply schema changes each time.
-
----
-
-## Local vs production checklist
-
-| Task | Local (Docker) | Vercel |
-|------|----------------|--------|
-| Database | `docker compose up -d` | Vercel Postgres / Neon |
-| `DATABASE_URL` | `postgresql://canteen:canteen@localhost:5432/canteen` | Production URL from dashboard |
-| `JWT_SECRET` | Any string for demo | Strong random secret |
-| HTTPS | No (HTTP OK for LAN demo) | Yes (automatic) |
-| PWA install button | Limited on HTTP | Works on HTTPS |
-| Seed database | `npm run db:seed` anytime for fresh demo | **Once** after first deploy |
-
 ---
 
 ## Troubleshooting
 
 | Problem | Fix |
 |---------|-----|
-| `Can't reach database` locally | Is Docker running? `docker compose ps` |
-| Port 5432 in use | Stop other Postgres or change port in `docker-compose.yml` |
-| Vercel build OK but login fails | Run `prisma db push` + `db:seed` against production `DATABASE_URL` |
-| Data gone after Vercel redeploy | You were using SQLite on Vercel before — use Postgres only |
+| `URL must start with postgresql://` | `.env` should be `file:./dev.db` and schema `provider = "sqlite"` |
+| Login fails after fresh clone | Run `npm run db:setup` |
+| Vercel build OK but login fails | Switch schema to `postgresql`, run `prisma db push` + `db:seed` against production `DATABASE_URL` |
 | Phone cannot open site | Firewall port 3000; use Vercel HTTPS URL instead |
-
----
-
-## What we stopped using
-
-**SQLite** (`file:./dev.db`) is not used anymore so local and Vercel share the same database type. Old `prisma/dev.db` files are ignored; you can delete them.

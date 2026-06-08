@@ -44,3 +44,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# LaTeX build artifacts (report source lives in docs/batu-project-report/)
+docs/batu-project-report/*.aux
+docs/batu-project-report/*.log
+docs/batu-project-report/*.lof
+docs/batu-project-report/*.lot
+docs/batu-project-report/*.out
+docs/batu-project-report/*.toc
+docs/batu-project-report/*.pdf
+docs/batu-project-report/*.fls
+docs/batu-project-report/*.fdb_latexmk
+docs/batu-project-report/*.synctex.gz
