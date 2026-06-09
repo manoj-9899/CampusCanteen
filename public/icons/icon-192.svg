@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192" role="img" aria-label="CampusCanteen">
-  <rect width="192" height="192" rx="40" fill="#f97316"/>
+  <rect width="192" height="192" rx="40" fill="#ea580c"/>
   <g transform="translate(48 40)" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
     <path d="M28 4v52M44 4v52M36 4c0 18-8 28-8 44h16c0-16-8-26-8-44z"/>
     <path d="M76 4v68h14V4H76z"/>

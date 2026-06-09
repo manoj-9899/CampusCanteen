@@ -6,14 +6,19 @@ import {
   verifyPassword,
 } from "@/lib/auth";
 import { prisma } from "@/lib/db";
-import { handleAuthError, jsonError } from "@/lib/api-utils";
+import { enforceRateLimit, handleAuthError, jsonError } from "@/lib/api-utils";
+import {
+  RATE_LIMITS,
+  checkRateLimit,
+  getClientIp,
+  rateLimitKey,
+} from "@/lib/rate-limit";
 
 const registerSchema = z.object({
   name: z.string().min(2),
   email: z.string().email(),
   password: z.string().min(6),
   studentId: z.string().optional(),
-  role: z.enum(["STUDENT", "STAFF"]).default("STUDENT"),
 });
 
 const loginSchema = z.object({
@@ -27,7 +32,19 @@ export async function POST(request: NextRequest) {
     const action = body.action as string;
 
     if (action === "register") {
+      const ip = getClientIp(request);
+      const limited = enforceRateLimit(
+        checkRateLimit(
+          rateLimitKey("auth:register", ip),
+          RATE_LIMITS.authRegister.limit,
+          RATE_LIMITS.authRegister.windowMs
+        )
+      );
+      if (limited) return limited;
+
       const data = registerSchema.parse(body);
+      const studentId = data.studentId?.trim() || null;
+
       const existing = await prisma.user.findUnique({
         where: { email: data.email },
       });
@@ -35,13 +52,22 @@ export async function POST(request: NextRequest) {
         return jsonError("An account with this email already exists.");
       }
 
+      if (studentId) {
+        const existingStudentId = await prisma.user.findUnique({
+          where: { studentId },
+        });
+        if (existingStudentId) {
+          return jsonError("This student ID is already registered.");
+        }
+      }
+
       const user = await prisma.user.create({
         data: {
           name: data.name,
           email: data.email,
           password: await hashPassword(data.password),
-          studentId: data.studentId,
-          role: data.role,
+          studentId,
+          role: "STUDENT",
         },
       });
 
@@ -64,6 +90,16 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "login") {
+      const ip = getClientIp(request);
+      const limited = enforceRateLimit(
+        checkRateLimit(
+          rateLimitKey("auth:login", ip),
+          RATE_LIMITS.authLogin.limit,
+          RATE_LIMITS.authLogin.windowMs
+        )
+      );
+      if (limited) return limited;
+
       const data = loginSchema.parse(body);
       const user = await prisma.user.findUnique({ where: { email: data.email } });
       if (!user || !(await verifyPassword(data.password, user.password))) {

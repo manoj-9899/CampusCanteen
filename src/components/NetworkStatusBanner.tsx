@@ -2,6 +2,7 @@
 
 import { WifiOff } from "lucide-react";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { Alert } from "@/components/ui/Alert";
 
 export function NetworkStatusBanner() {
   const { online } = useNetworkStatus();
@@ -9,14 +10,15 @@ export function NetworkStatusBanner() {
   if (online) return null;
 
   return (
-    <div
+    <Alert
+      variant="warning"
       role="status"
-      className="z-40 border-b border-amber-300 bg-amber-100 px-4 py-2.5 text-center text-sm font-medium text-amber-950"
+      className="z-40 rounded-none border-x-0 border-t-0 py-2.5 text-center text-sm font-medium"
     >
       <span className="inline-flex items-center justify-center gap-2">
         <WifiOff className="h-4 w-4 shrink-0" aria-hidden />
         You&apos;re offline — reconnect to place orders or refresh status
       </span>
-    </div>
+    </Alert>
   );
 }

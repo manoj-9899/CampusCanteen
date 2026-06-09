@@ -1,15 +1,27 @@
 {
   "name": "canteen-preorder",
-  "version": "0.1.0",
+  "version": "1.0.0-rc1",
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0 -p 3000",
     "build": "prisma generate && next build",
+    "build:netlify": "node scripts/netlify-build.mjs && npm run build",
+    "db:push:neon": "node scripts/use-postgres-schema.mjs && prisma db push && node scripts/restore-sqlite-schema.mjs",
+    "db:seed:neon": "node scripts/use-postgres-schema.mjs && tsx prisma/seed.ts && node scripts/restore-sqlite-schema.mjs",
+    "db:setup:neon": "node scripts/use-postgres-schema.mjs && prisma db push && tsx prisma/seed.ts && node scripts/restore-sqlite-schema.mjs",
     "start": "next start",
     "lint": "eslint",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "db:setup": "prisma db push && tsx prisma/seed.ts",
+    "test": "node scripts/prepare-test-prisma.mjs && vitest run && node scripts/restore-dev-prisma.mjs",
+    "test:watch": "node scripts/prepare-test-prisma.mjs && vitest",
+    "test:unit": "node scripts/prepare-test-prisma.mjs && vitest run tests/unit && node scripts/restore-dev-prisma.mjs",
+    "test:integration": "node scripts/prepare-test-prisma.mjs && vitest run tests/integration && node scripts/restore-dev-prisma.mjs",
+    "test:coverage": "node scripts/prepare-test-prisma.mjs && vitest run --coverage && node scripts/restore-dev-prisma.mjs",
+    "test:e2e": "playwright test && node scripts/restore-dev-prisma.mjs",
+    "test:all": "node scripts/prepare-test-prisma.mjs && vitest run && playwright test && node scripts/restore-dev-prisma.mjs",
+    "test:db:setup": "node scripts/test-db-setup.mjs",
     "postinstall": "prisma generate"
   },
   "prisma": {
@@ -30,17 +42,21 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.15.11",
+    "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/qrcode": "^1.5.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/coverage-v8": "^4.1.8",
     "eslint": "^9",
     "eslint-config-next": "16.2.6",
     "prisma": "^6.19.0",
     "tailwindcss": "^4",
     "tsx": "^4.22.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.8"
   }
 }

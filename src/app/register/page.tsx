@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
 import { useAuth } from "@/components/AuthProvider";
+import { AuthShell } from "@/components/auth/AuthShell";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -42,47 +45,64 @@ export default function RegisterPage() {
     }
   };
 
+  const update = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm({ ...form, [field]: e.target.value });
+
   return (
-    <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-4">
-      <div className="rounded-2xl border border-orange-100 bg-white p-8 shadow-lg shadow-orange-100/50">
-        <h1 className="text-2xl font-bold text-slate-900">Create account</h1>
-        <p className="mt-1 text-sm text-slate-500">Register as a college student</p>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {(["name", "email", "studentId", "password"] as const).map((field) => (
-            <div key={field}>
-              <label className="mb-1 block text-sm font-medium capitalize text-slate-700">
-                {field === "studentId" ? "Student ID" : field}
-              </label>
-              <input
-                type={field === "password" ? "password" : field === "email" ? "email" : "text"}
-                value={form[field]}
-                onChange={(e) => setForm({ ...form, [field]: e.target.value })}
-                className="w-full rounded-lg border border-slate-200 px-3 py-3 text-base outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
-                required={field !== "studentId"}
-              />
-            </div>
-          ))}
-          {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
-          )}
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex w-full min-h-11 items-center justify-center gap-2 rounded-lg bg-orange-500 py-3 text-base font-semibold text-white transition hover:bg-orange-600 disabled:opacity-60"
-          >
-            {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-            Register
-          </button>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-slate-500">
+    <AuthShell
+      title="Create account"
+      description="Register with your college email to start pre-ordering"
+      footer={
+        <p className="text-center text-sm text-muted">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-orange-600 hover:underline">
+          <Link
+            href="/login"
+            className="font-medium text-primary hover:underline"
+          >
             Sign in
           </Link>
         </p>
-      </div>
-    </div>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <Field
+          label="Full name"
+          name="name"
+          value={form.name}
+          onChange={update("name")}
+          autoComplete="name"
+          required
+        />
+        <Field
+          label="Email"
+          name="email"
+          type="email"
+          value={form.email}
+          onChange={update("email")}
+          autoComplete="email"
+          required
+        />
+        <Field
+          label="Student ID"
+          name="studentId"
+          value={form.studentId}
+          onChange={update("studentId")}
+          hint="Optional — helps staff verify pickup"
+        />
+        <Field
+          label="Password"
+          name="password"
+          type="password"
+          value={form.password}
+          onChange={update("password")}
+          autoComplete="new-password"
+          required
+        />
+        {error && <Alert variant="error">{error}</Alert>}
+        <Button type="submit" fullWidth loading={submitting} size="lg">
+          Create account
+        </Button>
+      </form>
+    </AuthShell>
   );
 }

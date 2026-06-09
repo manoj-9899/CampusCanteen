@@ -1,6 +1,9 @@
 "use client";
 
-import { Loader2, Minus, Plus, X } from "lucide-react";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { OrderTotalRow } from "./checkout/OrderLineList";
+import { cn } from "@/lib/cn";
 import type { CartItem, MenuItem } from "@/types";
 
 export function MobileCartSheet({
@@ -25,31 +28,37 @@ export function MobileCartSheet({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal aria-label="Your cart">
+    <div
+      className="fixed inset-0 z-50 lg:hidden"
+      role="dialog"
+      aria-modal
+      aria-label="Your cart"
+    >
       <button
         type="button"
         className="absolute inset-0 bg-black/40"
         onClick={onClose}
         aria-label="Close cart"
       />
-      <div className="absolute bottom-0 left-0 right-0 max-h-[min(85dvh,32rem)] rounded-t-2xl bg-white shadow-2xl pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          <h2 className="text-base font-bold text-slate-900">
+      <div className="absolute bottom-0 left-0 right-0 max-h-[min(85dvh,32rem)] rounded-t-2xl bg-surface shadow-2xl pb-[env(safe-area-inset-bottom)]">
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 className="text-base font-bold text-foreground">
             Your cart ({cart.length})
           </h2>
-          <button
-            type="button"
+          <Button
+            size="icon"
+            variant="ghost"
             onClick={onClose}
-            className="touch-target-sm rounded-lg p-2 text-slate-500 hover:bg-slate-100"
             aria-label="Close"
+            className="h-9 w-9 min-h-9 min-w-9"
           >
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         <ul className="max-h-[min(50dvh,20rem)] overflow-y-auto px-4 py-2">
           {cart.length === 0 ? (
-            <li className="py-8 text-center text-sm text-slate-500">Cart is empty</li>
+            <li className="py-8 text-center text-sm text-muted">Cart is empty</li>
           ) : (
             cart.map((item) => {
               const live = menu.find((m) => m.id === item.menuItemId);
@@ -57,47 +66,53 @@ export function MobileCartSheet({
               return (
                 <li
                   key={item.menuItemId}
-                  className="flex items-center gap-3 border-b border-slate-100 py-3 last:border-b-0"
+                  className="flex items-center gap-3 border-b border-border py-3 last:border-b-0"
                 >
                   <span className="text-2xl" aria-hidden>
                     {item.imageEmoji}
                   </span>
                   <div className="min-w-0 flex-1">
                     <p
-                      className={`text-sm font-medium ${unavailable ? "text-slate-400 line-through" : "text-slate-900"}`}
+                      className={cn(
+                        "text-sm font-medium",
+                        unavailable
+                          ? "text-muted line-through"
+                          : "text-foreground"
+                      )}
                     >
                       {item.name}
                     </p>
                     {unavailable ? (
-                      <p className="text-xs font-medium text-red-600">Sold out</p>
+                      <p className="text-xs font-medium text-danger">Sold out</p>
                     ) : (
-                      <p className="text-sm font-semibold text-orange-600">
+                      <p className="text-sm font-semibold text-primary">
                         ₹{item.price * item.quantity}
                       </p>
                     )}
                   </div>
                   {!unavailable && (
                     <div className="flex items-center gap-1">
-                      <button
-                        type="button"
+                      <Button
+                        size="icon"
+                        variant="outline"
                         onClick={() => onUpdateQty(item.menuItemId, -1)}
-                        className="touch-target-sm flex items-center justify-center rounded-lg border p-2"
                         aria-label={`Decrease ${item.name}`}
+                        className="h-9 w-9 min-h-9 min-w-9"
                       >
-                        <Minus className="h-4 w-4" />
-                      </button>
+                        −
+                      </Button>
                       <span className="w-6 text-center text-sm font-medium">
                         {item.quantity}
                       </span>
-                      <button
-                        type="button"
+                      <Button
+                        size="icon"
                         onClick={() => onUpdateQty(item.menuItemId, 1)}
                         disabled={item.quantity >= item.maxQuantity}
-                        className="touch-target-sm flex items-center justify-center rounded-lg border p-2 disabled:opacity-40"
                         aria-label={`Increase ${item.name}`}
+                        className="h-9 w-9 min-h-9 min-w-9"
                       >
-                        <Plus className="h-4 w-4" />
-                      </button>
+                        +
+                      </Button>
                     </div>
                   )}
                 </li>
@@ -106,20 +121,18 @@ export function MobileCartSheet({
           )}
         </ul>
 
-        <div className="border-t px-4 py-3">
-          <div className="mb-3 flex justify-between text-base font-bold">
-            <span>Total</span>
-            <span className="text-orange-600">₹{total}</span>
-          </div>
-          <button
-            type="button"
+        <div className="border-t border-border px-4 py-3">
+          <OrderTotalRow total={total} />
+          <Button
+            size="lg"
+            fullWidth
+            loading={busy}
+            disabled={cart.length === 0}
             onClick={onReview}
-            disabled={busy || cart.length === 0}
-            className="flex w-full min-h-12 items-center justify-center gap-2 rounded-xl bg-orange-500 text-sm font-semibold text-white disabled:opacity-60"
+            className="mt-3"
           >
-            {busy && <Loader2 className="h-4 w-4 animate-spin" />}
             Review order
-          </button>
+          </Button>
         </div>
       </div>
     </div>

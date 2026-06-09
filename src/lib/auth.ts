@@ -3,12 +3,10 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "./db";
 import type { Role } from "@prisma/client";
+import { getJwtSecretKey } from "./jwt-config";
+import { AUTH_COOKIE } from "./session-token";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ?? "fallback-dev-secret"
-);
-
-export const AUTH_COOKIE = "canteen_session";
+export { AUTH_COOKIE };
 
 export interface SessionUser {
   id: string;
@@ -37,7 +35,7 @@ export async function createSession(user: SessionUser) {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(JWT_SECRET);
+    .sign(getJwtSecretKey());
 
   const cookieStore = await cookies();
   cookieStore.set(AUTH_COOKIE, token, {
@@ -66,7 +64,7 @@ export async function getSession(): Promise<SessionUser | null> {
   if (!token) return null;
 
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecretKey());
     return {
       id: payload.id as string,
       email: payload.email as string,
@@ -104,8 +102,4 @@ export async function requireSession(roles?: Role[]) {
     role: user.role,
     studentId: user.studentId,
   };
-}
-
-export async function getUserFromDb(id: string) {
-  return prisma.user.findUnique({ where: { id } });
 }

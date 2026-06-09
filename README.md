@@ -1,129 +1,264 @@
-# CampusCanteen — Smart Inventory-Aware Ordering
+# CampusCanteen
 
-A web application for **ready-to-eat college canteen food**. Students order only **in-stock items**, pay online, and collect using a **token number + QR code**. Staff manage a **pickup queue**, **verify tokens**, and view **demand forecasts** to reduce waste.
+**Smart inventory-aware canteen pre-ordering for college campuses.**
 
-## User flow (summary)
+[![Version](https://img.shields.io/badge/version-1.0.0--rc1-blue)](docs/RC1_RELEASE.md)
+[![Tests](https://img.shields.io/badge/tests-70%20Vitest%20%2B%206%20E2E-green)](docs/TESTING.md)
+[![Coverage](https://img.shields.io/badge/coverage-50%25%2B-orange)](docs/PROJECT_METRICS.md)
+[![License](https://img.shields.io/badge/license-Mini%20Project-lightgrey)](#)
 
-1. Student browses menu with live availability (Available / Only N Left / Sold out)
-2. Adds items to cart (quantity capped by app-tracked stock)
-3. Reviews order summary → system validates inventory
-4. Pays via UPI / Google Pay / PhonePe / Paytm / Card (simulated)
-5. Stock is **deducted** after payment; **token** (e.g. `A154`) and **QR** generated
-6. Order appears on staff pickup queue
-7. Staff packs order → marks ready → verifies token/QR at counter → marks collected
+Students browse **live stock**, pay online, and collect food with a **token + QR code**. Staff manage the **pickup queue**, **verify pickups**, **update inventory**, and view **daily sales** — all from a mobile-first progressive web app.
 
-**Cash counter sales** are not tracked in the app. Staff use **Inventory → Sold out / Available** to stop or resume online ordering when an item finishes (even if the stock number is wrong).
+> **RC1 status:** Feature-frozen release candidate for campus demo and portfolio. Payments are **simulated** — not production-ready for real money. See [Known limitations](#known-limitations).
 
-### Student UX (web)
+**Live demo:** *[Add your Netlify URL]*  
+**Docs:** [Architecture](docs/ARCHITECTURE.md) · [Demo script](docs/DEMO_SCRIPT.md) · [Interview guide](docs/INTERVIEW_GUIDE.md)
 
-- Category filters, bottom cart bar (mobile), checkout step bar, active-order banner
-- Full-screen QR on receipt, browser notifications when order is ready
-- Collapsible **How it works** guide on the menu page
+---
 
-### Mobile-first & PWA (no native Android app)
+## Project overview
 
-- Responsive layout, safe areas, 44px touch targets, offline banner
-- API timeouts, visibility-aware polling (saves battery on slow phones)
-- **Install on phone:** Menu or Profile shows install help — Chrome **Install** button (HTTPS) or **Add to Home screen** steps (iOS Safari / Android menu)
-- `manifest.webmanifest` + service worker for home-screen launch and staff shortcut to `/staff`
-- Full audit notes: [docs/MOBILE_AUDIT.md](docs/MOBILE_AUDIT.md)
+College canteens often oversell batch-prepared items and create long pickup queues. CampusCanteen solves this by:
 
-### Staff custom inventory
+1. Showing **real-time availability** (Available / Only N left / Sold out)
+2. **Validating stock** at cart, order, and payment
+3. **Deducting inventory** only after successful payment
+4. Issuing a **digital pickup token + QR** so staff verify the correct student
+5. Giving staff a **live queue**, inventory tools, and sales insights
 
-On **Staff → Inventory**, for each item:
+Cash counter sales are handled manually via staff **Sold out / Available** toggles.
 
-- **Add** — type any amount (e.g. `30`) or use **+10 / +25** shortcuts
-- **Set to** — set exact app stock (e.g. `12` samosas left after counting)
-- **Online / Sold out** toggle — stop or allow online orders (cash sales are not auto-tracked)
+---
 
-## Quick start (local demo)
+## Features
 
-**Full setup for Windows & Mac:** see **[SETUP.md](SETUP.md)** (share with your project partner).
+### Student
 
-Uses **SQLite** — one file in `prisma/dev.db`, no Docker or database server.
+- Category-filtered menu with availability indicators and daily specials
+- Mobile cart (bottom sheet) and desktop sidebar checkout
+- Cart validation before review; order summary with server-side pricing
+- Simulated online payment (UPI, Google Pay, PhonePe, Paytm, Card)
+- QR receipt with pickup token and order tracking stepper
+- Order history, reorder, cancel pending/paid orders (with stock restore)
+- Browser notifications when order is ready
+- PWA install support for phone home screen
 
-```bash
-cd canteen-preorder
-copy .env.example .env
-npm install
-npm run db:setup
-npm run dev
+### Staff
+
+- Live pickup queue with order details
+- QR scan or manual token verification with pickup secret
+- Mark packed & ready; confirm handover to complete orders
+- Menu CRUD (create, edit, delete items)
+- Inventory restock, set quantity, sold-out toggle
+- Today's sales dashboard (revenue, orders, top items)
+- 14-day demand forecast for batch prep
+
+### Security
+
+- bcrypt password hashing, JWT HTTP-only session cookies
+- Role-based API authorization (student / staff)
+- Staff UI protected by Next.js middleware
+- Zod input validation on all mutating endpoints
+- Rate limiting on auth, orders, payments, verify
+- QR v2 pickup secret — timing-safe verification; secret stripped from API responses
+
+### Testing
+
+- **70** Vitest tests (unit + integration)
+- **6** Playwright E2E tests including full checkout → handover
+- **~50%** line coverage on `src/lib` + `src/app/api`
+- GitHub Actions: lint, test, production build
+
+---
+
+## Screenshots
+
+*Add captures to `docs/screenshots/` — see [screenshot guide](docs/screenshots/README.md).*
+
+| Student menu | Cart & review |
+|:---:|:---:|
+| ![Student menu](docs/screenshots/01-student-menu.png) | ![Cart](docs/screenshots/02-cart.png) |
+| *Category filters & availability* | *Mobile cart / review step* |
+
+| Checkout | QR receipt |
+|:---:|:---:|
+| ![Checkout](docs/screenshots/03-checkout.png) | ![QR receipt](docs/screenshots/04-qr-receipt.png) |
+| *Payment method selection* | *Token + QR for pickup* |
+
+| Staff queue | Menu CRUD |
+|:---:|:---:|
+| ![Staff queue](docs/screenshots/05-staff-queue.png) | ![Menu CRUD](docs/screenshots/06-menu-crud.png) |
+
+| Inventory | Dashboard |
+|:---:|:---:|
+| ![Inventory](docs/screenshots/07-inventory.png) | ![Dashboard](docs/screenshots/08-dashboard.png) |
+
+| QR verification |
+|:---:|
+| ![QR verify](docs/screenshots/09-qr-verify.png) |
+
+---
+
+## Architecture
+
+```mermaid
+flowchart LR
+  subgraph student [Student App]
+    M[Menu] --> C[Cart]
+    C --> P[Payment]
+    P --> R[QR Receipt]
+  end
+
+  subgraph staff [Staff App]
+    Q[Queue] --> V[Verify]
+    V --> H[Handover]
+  end
+
+  subgraph api [Next.js API]
+    API[Route Handlers]
+  end
+
+  subgraph db [Database]
+    DB[(Prisma / SQL)]
+  end
+
+  student --> API
+  staff --> API
+  API --> DB
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+**High-level design:**
 
-### Deploy online
+- **Monolith:** Next.js 16 App Router — React UI + API routes in one deployable unit
+- **State:** Custom hooks (`useStudentApp`, `useStaffApp`) + panel components (Sprint 7 refactor)
+- **Business logic:** `src/lib/*` — lifecycle, inventory, tokens, rate limits
+- **Auth:** JWT in HTTP-only cookie; `requireSession()` on every protected route
 
-| Platform | Guide |
-|----------|--------|
-| **Netlify** (recommended for demo URL) | **[docs/NETLIFY.md](docs/NETLIFY.md)** |
-| Vercel | **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** |
+Full detail: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**
 
-Production requires **PostgreSQL** (free Neon account). Local dev stays on SQLite.
-
-### Test on phone + laptop (same Wi‑Fi)
-
-The dev server listens on all network interfaces. After `npm run dev`:
-
-1. Find your laptop IP: `ipconfig` → **IPv4 Address** (e.g. `10.135.242.210`)
-2. On your **phone browser**, open: `http://YOUR_LAPTOP_IP:3000`
-3. **Student flow** on phone → place order → show QR on receipt
-4. **Staff flow** on laptop or second phone → `http://YOUR_LAPTOP_IP:3000/staff` → Verify → Scan QR
-
-If the phone shows a blank page or never finishes loading, **restart** `npm run dev` after pulling updates — Next.js must allow your laptop IP for LAN access (configured in `next.config.ts`).
-
-If the phone cannot connect at all, allow **Node.js** through Windows Firewall for port **3000**.
-
-**Restart** the dev server after pulling changes (`Ctrl+C`, then `npm run dev` again).
-
-
-| Role    | Email                 | Password    |
-|---------|-----------------------|-------------|
-| Student | student@college.edu   | student123  |
-| Staff   | staff@canteen.edu     | staff123    |
-
-### Demo menu (seeded)
-
-| Item       | Price | Stock note        |
-|------------|-------|-------------------|
-| Samosa     | ₹20   | Available (25)    |
-| Vada Pav   | ₹25   | Available (30)    |
-| Poha       | ₹30   | Available (20)    |
-| Tea        | ₹10   | Available (50)    |
-| Coffee     | ₹15   | **Out of stock**  |
-| Misal Pav  | ₹60   | **Today's Special** — Only 5 left |
+---
 
 ## Tech stack
 
-- Next.js 16 · TypeScript · Tailwind CSS
-- Prisma · SQLite (local file database)
-- JWT session cookies
-- QR codes (`qrcode` package)
-- Recharts (staff demand forecast)
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | React 19, TypeScript, Tailwind CSS 4, Lucide icons |
+| **Backend** | Next.js 16 Route Handlers, Zod validation |
+| **Database** | Prisma 6 — SQLite (local) · PostgreSQL / Neon (production) |
+| **Authentication** | bcryptjs, jose (JWT), HTTP-only cookies |
+| **QR** | `qrcode` (server), `html5-qrcode` (staff scanner, lazy-loaded) |
+| **Charts** | Recharts (staff forecast) |
+| **Testing** | Vitest, Playwright, V8 coverage |
+| **CI/CD** | GitHub Actions |
+| **Deployment** | Netlify + `@netlify/plugin-nextjs`, Neon PostgreSQL |
 
-## API highlights
+---
 
-| Endpoint | Purpose |
-|----------|---------|
-| `GET /api/menu` | Menu + stock status + daily special |
-| `POST /api/cart/validate` | Pre-payment stock check |
-| `POST /api/orders` | Create pending order |
-| `POST /api/payments` | Pay, deduct stock, confirm + token |
-| `GET /api/orders/[id]/qr` | QR code for pickup |
-| `GET /api/orders/queue` | Staff pickup queue |
-| `POST /api/orders/verify` | Staff verify by token, order ID, or scanned QR |
-| `PATCH /api/inventory` | Staff restock items or toggle **Sold out / Available** |
-| `GET /api/forecast` | Demand forecast for batch prep |
+## Installation
 
-## Order status flow
+**Prerequisites:** Node.js 20+, npm
 
+```bash
+git clone https://github.com/manoj-9899/CampusCanteen.git
+cd canteen-preorder
+
+copy .env.example .env    # Windows
+# cp .env.example .env    # Mac/Linux
+
+npm install
+npm run db:setup          # SQLite: prisma/dev.db + seed
+npm run dev
 ```
-PENDING → (payment) → CONFIRMED → READY_FOR_PICKUP → (verify QR/token) → (confirm handover) → COMPLETED
+
+Open **http://localhost:3000**
+
+| Role | Email | Password |
+|------|-------|----------|
+| Student | student@college.edu | student123 |
+| Staff | staff@canteen.edu | staff123 |
+
+Detailed setup: **[SETUP.md](SETUP.md)**
+
+### Phone testing (same Wi‑Fi)
+
+```text
+http://YOUR_LAPTOP_IP:3000        # student
+http://YOUR_LAPTOP_IP:3000/staff  # staff
 ```
 
-## Mini project notes
+---
 
-- **Problem:** Ordering/payment queues + overselling when stock is batch-prepared
-- **Solution:** Inventory-aware ordering, digital tokens, pickup-only counter visit
-- **Forecast:** Weighted moving average on 14 days of sales to suggest batch sizes
-# CampusCanteen
+## Deployment
+
+**Recommended:** Netlify + Neon (free tier).
+
+1. Create [Neon](https://neon.tech) PostgreSQL database
+2. Run once: `npm run db:setup:neon` with Neon `DATABASE_URL`
+3. Connect repo on [Netlify](https://www.netlify.com)
+4. Set env vars: `DATABASE_URL`, `JWT_SECRET`
+5. Deploy — `netlify.toml` handles PostgreSQL schema swap
+
+| Guide | Purpose |
+|-------|---------|
+| [docs/NETLIFY.md](docs/NETLIFY.md) | Step-by-step deploy |
+| [docs/DEPLOYMENT_CHECKLIST.md](docs/DEPLOYMENT_CHECKLIST.md) | RC1 checklist + rollback |
+| [docs/RC1_RELEASE.md](docs/RC1_RELEASE.md) | Release notes & limitations |
+
+---
+
+## Testing
+
+```bash
+npm test                 # 70 Vitest tests
+npm run test:coverage    # ~50% on lib + API
+npm run test:e2e         # 6 Playwright (npx playwright install chromium)
+npm run lint
+npm run build:netlify    # Production build smoke test
+```
+
+See **[docs/TESTING.md](docs/TESTING.md)**
+
+---
+
+## Known limitations
+
+| Limitation | RC1 status |
+|------------|------------|
+| Payments | Simulated only — no Razorpay |
+| Demo passwords | Seed uses `student123` / `staff123` — rotate on public URLs |
+| Database | `db push` only — no Prisma migrations |
+| Registration | Open student sign-up (rate-limited) |
+| Notifications | Browser events only — no push/SMS |
+| Rate limits | In-memory per server instance |
+
+Full list: **[docs/RC1_RELEASE.md](docs/RC1_RELEASE.md)**
+
+---
+
+## Documentation index
+
+| Document | Description |
+|----------|-------------|
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System design & diagrams |
+| [DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) | Live presentation walkthrough |
+| [INTERVIEW_GUIDE.md](docs/INTERVIEW_GUIDE.md) | Technical Q&A |
+| [RESUME_BULLETS.md](docs/RESUME_BULLETS.md) | Portfolio / resume copy |
+| [PROJECT_METRICS.md](docs/PROJECT_METRICS.md) | Codebase statistics |
+| [ORDER_LIFECYCLE.md](docs/ORDER_LIFECYCLE.md) | Status transition rules |
+| [QR_PICKUP_SECURITY.md](docs/QR_PICKUP_SECURITY.md) | Pickup secret design |
+| [PAYMENT_FLOW.md](docs/PAYMENT_FLOW.md) | Payment state machine |
+| [CAMPUS_CANTEEN_CHECKLIST.md](CAMPUS_CANTEEN_CHECKLIST.md) | Full feature audit |
+
+---
+
+## Order flow
+
+```text
+PENDING → (payment) → CONFIRMED → READY_FOR_PICKUP → (verify) → (handover) → COMPLETED
+```
+
+---
+
+## License
+
+Academic mini project — see repository for usage context.

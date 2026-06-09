@@ -22,6 +22,7 @@ const updateSchema = z.object({
   stockQuantity: z.number().int().min(0).max(9999).optional(),
   addStock: z.number().int().min(0).max(9999).optional(),
   isAvailable: z.boolean().optional(),
+  lowStockThreshold: z.number().int().min(0).max(9999).optional(),
 });
 
 export async function PATCH(request: NextRequest) {
@@ -48,6 +49,9 @@ export async function PATCH(request: NextRequest) {
       data: {
         stockQuantity,
         ...(body.isAvailable !== undefined && { isAvailable: body.isAvailable }),
+        ...(body.lowStockThreshold !== undefined && {
+          lowStockThreshold: body.lowStockThreshold,
+        }),
       },
     });
 

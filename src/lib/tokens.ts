@@ -1,3 +1,4 @@
+import { randomBytes, timingSafeEqual } from "crypto";
 import { prisma } from "./db";
 
 export async function generateOrderIdentifiers() {
@@ -12,6 +13,40 @@ export async function generateOrderIdentifiers() {
   return { orderNumber, orderCode, tokenNumber };
 }
 
-export function buildQrPayload(orderId: string, tokenNumber: string, orderCode: string) {
-  return JSON.stringify({ orderId, tokenNumber, orderCode });
+/** Cryptographic pickup secret — required for QR verify on new paid orders. */
+export function generatePickupSecret(): string {
+  return randomBytes(32).toString("hex");
+}
+
+export function pickupSecretsMatch(
+  expected: string | null | undefined,
+  provided: string | undefined
+): boolean {
+  if (!expected || !provided) return false;
+  if (expected.length !== provided.length) return false;
+  try {
+    return timingSafeEqual(Buffer.from(expected), Buffer.from(provided));
+  } catch {
+    return false;
+  }
+}
+
+export function buildQrPayload(order: {
+  id: string;
+  pickupSecret: string | null;
+  tokenNumber: string;
+  orderCode: string;
+}) {
+  if (order.pickupSecret) {
+    return JSON.stringify({
+      v: 2,
+      orderId: order.id,
+      s: order.pickupSecret,
+    });
+  }
+  return JSON.stringify({
+    orderId: order.id,
+    tokenNumber: order.tokenNumber,
+    orderCode: order.orderCode,
+  });
 }

@@ -1,5 +1,8 @@
 # CampusCanteen — Local demo + optional Vercel deploy
 
+> **RC1 primary deploy path:** [NETLIFY.md](./NETLIFY.md) + [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)  
+> This document covers **local SQLite demo** and **optional Vercel** hosting.
+
 ## Part 1 — Local machine demo (SQLite)
 
 No Docker, no Postgres install. The database is a single file: `prisma/dev.db`.

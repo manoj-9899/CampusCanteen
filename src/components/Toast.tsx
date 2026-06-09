@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { CheckCircle2 } from "lucide-react";
+import { Alert } from "@/components/ui/Alert";
 
 export function Toast({
   message,
@@ -19,13 +20,14 @@ export function Toast({
   if (!message) return null;
 
   return (
-    <div
+    <Alert
+      variant="success"
       role="status"
       aria-live="polite"
-      className="fixed bottom-24 left-1/2 z-[60] flex max-w-[90vw] -translate-x-1/2 items-center gap-2 rounded-full border border-green-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-800 shadow-lg lg:bottom-8"
+      className="fixed bottom-24 left-1/2 z-[60] flex max-w-[90vw] -translate-x-1/2 items-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium shadow-lg lg:bottom-8"
     >
-      <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
+      <CheckCircle2 className="h-5 w-5 shrink-0" aria-hidden />
       {message}
-    </div>
+    </Alert>
   );
 }

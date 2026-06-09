@@ -51,5 +51,7 @@ export function orderStatusChipLabel(status: string): string {
   if (status === "COMPLETED") return "Collected";
   if (status === "READY_FOR_PICKUP") return "Ready";
   if (status === "CONFIRMED") return "Preparing";
+  if (status === "CANCELLED") return "Cancelled";
+  if (status === "PENDING") return "Awaiting payment";
   return status.replace(/_/g, " ");
 }

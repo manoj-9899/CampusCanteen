@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { cn } from "@/lib/cn";
 
 function parseQty(value: string): number | null {
   const n = parseInt(value.trim(), 10);
@@ -45,23 +47,19 @@ export function InventoryStockControls({
     setAddQty("");
   };
 
-  const inputClass =
-    layout === "compact"
-      ? "min-h-10 w-16 rounded-lg border px-2 text-center text-base font-semibold"
-      : "min-h-11 w-20 rounded-lg border px-3 text-center text-lg font-semibold";
-
-  const updateBtn =
-    layout === "compact"
-      ? "min-h-10 rounded-lg bg-orange-500 px-3 text-xs font-semibold text-white disabled:opacity-50"
-      : "min-h-11 flex-1 rounded-lg bg-orange-500 px-4 text-sm font-semibold text-white disabled:opacity-50";
-
   return (
     <div className={layout === "compact" ? "space-y-2" : "mt-3 space-y-2"}>
-      <p className={layout === "compact" ? "text-xs text-slate-500" : "text-xs font-medium text-slate-600"}>
-        {layout === "compact" ? "Stock:" : `How many ${itemName} are left for online orders?`}
+      <p
+        className={cn(
+          layout === "compact" ? "text-xs text-muted" : "text-xs font-medium text-muted"
+        )}
+      >
+        {layout === "compact"
+          ? "Stock:"
+          : `How many ${itemName} are left for online orders?`}
       </p>
       <div className="flex flex-wrap items-center gap-2">
-        <input
+        <Input
           type="number"
           inputMode="numeric"
           min={0}
@@ -70,18 +68,20 @@ export function InventoryStockControls({
           onChange={(e) => setQty(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && submitUpdate()}
           disabled={busy}
-          className={inputClass}
+          className={cn(
+            "text-center font-semibold",
+            layout === "compact" ? "min-h-10 w-16 px-2 text-base" : "min-h-11 w-20 text-lg"
+          )}
           aria-label={`Stock count for ${itemName}`}
         />
-        <button type="button" onClick={submitUpdate} disabled={busy} className={updateBtn}>
-          {busy ? (
-            <Loader2 className="mx-auto h-4 w-4 animate-spin" />
-          ) : layout === "compact" ? (
-            "Update"
-          ) : (
-            "Update stock"
-          )}
-        </button>
+        <Button
+          size={layout === "compact" ? "sm" : "md"}
+          onClick={submitUpdate}
+          loading={busy}
+          className={layout === "compact" ? undefined : "flex-1"}
+        >
+          {layout === "compact" ? "Update" : "Update stock"}
+        </Button>
       </div>
 
       {onAddStock && (
@@ -89,14 +89,14 @@ export function InventoryStockControls({
           <button
             type="button"
             onClick={() => setShowAddMore((s) => !s)}
-            className="text-xs font-medium text-orange-700 underline-offset-2 hover:underline"
+            className="text-xs font-medium text-primary underline-offset-2 hover:underline"
           >
             {showAddMore ? "Hide add-more options" : "Add more instead (new batch)"}
           </button>
           {showAddMore && (
-            <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-slate-50 p-2">
-              <span className="text-xs text-slate-600">Add</span>
-              <input
+            <div className="mt-2 flex flex-wrap items-center gap-2 rounded-xl bg-surface-muted p-2">
+              <span className="text-xs text-muted">Add</span>
+              <Input
                 type="number"
                 inputMode="numeric"
                 min={0}
@@ -106,33 +106,28 @@ export function InventoryStockControls({
                 onChange={(e) => setAddQty(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && submitAdd()}
                 disabled={busy}
-                className="w-16 rounded border px-2 py-1 text-center text-sm"
+                className="w-16 px-2 py-1 text-center text-sm"
                 aria-label="Quantity to add to current stock"
               />
-              <button
-                type="button"
-                onClick={submitAdd}
-                disabled={busy}
-                className="rounded bg-slate-800 px-2 py-1 text-xs font-semibold text-white disabled:opacity-50"
-              >
+              <Button size="sm" variant="secondary" onClick={submitAdd} disabled={busy}>
                 Add
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
                 disabled={busy}
                 onClick={() => void onAddStock(10)}
-                className="rounded border px-2 py-1 text-xs hover:bg-white disabled:opacity-50"
               >
                 +10
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
                 disabled={busy}
                 onClick={() => void onAddStock(25)}
-                className="rounded border px-2 py-1 text-xs hover:bg-white disabled:opacity-50"
               >
                 +25
-              </button>
+              </Button>
             </div>
           )}
         </div>

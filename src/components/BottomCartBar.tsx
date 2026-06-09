@@ -1,6 +1,8 @@
 "use client";
 
-import { Loader2, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/cn";
 
 export function BottomCartBar({
   itemCount,
@@ -16,9 +18,7 @@ export function BottomCartBar({
   primaryLabel: string;
   busy?: boolean;
   onPrimary: () => void;
-  /** On menu step: open cart sheet instead of jumping to review */
   onOpenCart?: () => void;
-  /** When true, sits above the student bottom tab bar */
   aboveBottomNav?: boolean;
 }) {
   if (itemCount === 0) return null;
@@ -29,29 +29,29 @@ export function BottomCartBar({
 
   return (
     <div
-      className={`fixed left-0 right-0 z-40 px-3 lg:hidden ${bottomClass}`}
+      className={cn("fixed left-0 right-0 z-40 px-3 lg:hidden", bottomClass)}
+      role="region"
+      aria-label="Cart summary"
     >
-      <button
-        type="button"
+      <Button
+        fullWidth
+        size="lg"
+        loading={busy}
         onClick={onOpenCart ?? onPrimary}
-        disabled={busy}
-        className="mx-auto flex w-full max-w-lg items-center justify-between rounded-xl bg-orange-500 px-4 py-3.5 shadow-lg disabled:opacity-70"
+        className="mx-auto max-w-lg justify-between shadow-lg"
+        aria-label={`${primaryLabel}, ${itemCount} items, ₹${total}`}
       >
-        <span className="flex items-center gap-2 text-sm font-semibold text-white">
-          {busy ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <ShoppingCart className="h-5 w-5" />
-          )}
+        <span className="flex items-center gap-2">
+          <ShoppingCart className="h-5 w-5" aria-hidden />
           View cart
         </span>
         <span className="flex items-center gap-2">
-          <span className="text-sm font-semibold text-white">₹{total}</span>
-          <span className="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-orange-700">
+          <span>₹{total}</span>
+          <span className="rounded-full bg-white px-2 py-0.5 text-xs font-bold text-primary">
             {itemCount}
           </span>
         </span>
-      </button>
+      </Button>
     </div>
   );
 }

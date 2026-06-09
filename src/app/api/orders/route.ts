@@ -4,7 +4,14 @@ import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { validateCartStock } from "@/lib/inventory";
 import { generateOrderIdentifiers } from "@/lib/tokens";
-import { handleAuthError, jsonError } from "@/lib/api-utils";
+import { expireStalePendingOrders } from "@/lib/order-lifecycle";
+import { stripPickupSecret, stripPickupSecretFromOrders } from "@/lib/order-response";
+import { enforceRateLimit, handleAuthError, jsonError } from "@/lib/api-utils";
+import {
+  RATE_LIMITS,
+  checkRateLimit,
+  rateLimitKey,
+} from "@/lib/rate-limit";
 
 const createOrderSchema = z.object({
   items: z
@@ -25,6 +32,11 @@ const orderInclude = {
 export async function GET() {
   try {
     const session = await requireSession();
+
+    if (session.role === "STUDENT") {
+      await expireStalePendingOrders(session.id);
+    }
+
     const where =
       session.role === "STAFF"
         ? {
@@ -40,7 +52,7 @@ export async function GET() {
       take: session.role === "STAFF" ? 100 : 30,
     });
 
-    return NextResponse.json({ orders });
+    return NextResponse.json({ orders: stripPickupSecretFromOrders(orders) });
   } catch (error) {
     return handleAuthError(error);
   }
@@ -49,6 +61,18 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const session = await requireSession(["STUDENT"]);
+
+    const limited = enforceRateLimit(
+      checkRateLimit(
+        rateLimitKey("orders:create", session.id),
+        RATE_LIMITS.ordersCreate.limit,
+        RATE_LIMITS.ordersCreate.windowMs
+      )
+    );
+    if (limited) return limited;
+
+    await expireStalePendingOrders(session.id);
+
     const body = createOrderSchema.parse(await request.json());
 
     const stockCheck = await validateCartStock(body.items);
@@ -90,7 +114,10 @@ export async function POST(request: NextRequest) {
       include: orderInclude,
     });
 
-    return NextResponse.json({ order }, { status: 201 });
+    return NextResponse.json(
+      { order: stripPickupSecret(order) },
+      { status: 201 }
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       return jsonError(error.issues[0]?.message ?? "Invalid order data.");

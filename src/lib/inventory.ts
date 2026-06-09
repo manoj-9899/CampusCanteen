@@ -125,3 +125,12 @@ export async function deductStock(items: CartLine[], db: DbClient = prisma) {
     }
   }
 }
+
+export async function restoreStock(items: CartLine[], db: DbClient = prisma) {
+  for (const line of items) {
+    await db.menuItem.update({
+      where: { id: line.menuItemId },
+      data: { stockQuantity: { increment: line.quantity } },
+    });
+  }
+}

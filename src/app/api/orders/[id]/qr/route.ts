@@ -20,11 +20,11 @@ export async function GET(
     if (session.role === "STUDENT" && order.userId !== session.id) {
       return jsonError("Forbidden.", 403);
     }
-    if (order.paymentStatus !== "PAID") {
-      return jsonError("QR available only after payment.", 400);
+    if (order.paymentStatus !== "PAID" || order.status === "CANCELLED") {
+      return jsonError("QR is not available for this order.", 400);
     }
 
-    const payload = buildQrPayload(order.id, order.tokenNumber, order.orderCode);
+    const payload = buildQrPayload(order);
     const dataUrl = await QRCode.toDataURL(payload, {
       width: 280,
       margin: 2,

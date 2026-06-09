@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -33,7 +33,7 @@ model User {
   email     String   @unique
   password  String
   name      String
-  studentId String?
+  studentId String? @unique
   role      Role     @default(STUDENT)
   createdAt DateTime @default(now())
   orders    Order[]
@@ -67,10 +67,15 @@ model Order {
   paymentRef    String?
   paymentMethod String?
   totalAmount   Float
+  pickupSecret  String?
   collectedAt   DateTime?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   items         OrderItem[]
+
+  @@index([userId, createdAt])
+  @@index([paymentStatus, status, createdAt])
+  @@index([createdAt, paymentStatus])
 }
 
 model OrderItem {
@@ -81,4 +86,7 @@ model OrderItem {
   menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
   quantity   Int
   unitPrice  Float
+
+  @@index([orderId])
+  @@index([menuItemId])
 }

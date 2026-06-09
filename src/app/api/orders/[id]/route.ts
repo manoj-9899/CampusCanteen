@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import {
+  applyStaffStatusUpdate,
+  expireStalePendingOrders,
+  lifecycleErrorMessage,
+} from "@/lib/order-lifecycle";
+import { stripPickupSecret } from "@/lib/order-response";
 import { handleAuthError, jsonError } from "@/lib/api-utils";
 
 const statusSchema = z.object({
@@ -21,6 +27,10 @@ export async function GET(
     const session = await requireSession();
     const { id } = await params;
 
+    if (session.role === "STUDENT") {
+      await expireStalePendingOrders(session.id);
+    }
+
     const order = await prisma.order.findUnique({
       where: { id },
       include: orderInclude,
@@ -34,7 +44,7 @@ export async function GET(
       return jsonError("Forbidden.", 403);
     }
 
-    return NextResponse.json({ order });
+    return NextResponse.json({ order: stripPickupSecret(order) });
   } catch (error) {
     return handleAuthError(error);
   }
@@ -49,26 +59,20 @@ export async function PATCH(
     const { id } = await params;
     const { status } = statusSchema.parse(await request.json());
 
-    const order = await prisma.order.findUnique({ where: { id } });
-    if (!order) {
-      return jsonError("Order not found.", 404);
+    try {
+      const updated = await applyStaffStatusUpdate(id, status);
+      return NextResponse.json({ order: stripPickupSecret(updated) });
+    } catch (error) {
+      if (error instanceof Error) {
+        if (error.message === "NOT_FOUND") {
+          return jsonError(lifecycleErrorMessage("NOT_FOUND"), 404);
+        }
+        if (error.message === "INVALID_TRANSITION") {
+          return jsonError(lifecycleErrorMessage("INVALID_TRANSITION"), 400);
+        }
+      }
+      throw error;
     }
-
-    const data: { status: typeof status; collectedAt?: Date } = { status };
-    if (status === "COLLECTED") {
-      data.collectedAt = new Date();
-    }
-
-    const updated = await prisma.order.update({
-      where: { id },
-      data,
-      include: {
-        user: { select: { name: true, studentId: true } },
-        items: { include: { menuItem: true } },
-      },
-    });
-
-    return NextResponse.json({ order: updated });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return jsonError(error.issues[0]?.message ?? "Invalid status.");

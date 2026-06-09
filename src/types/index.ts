@@ -69,6 +69,19 @@ export interface StockValidationError {
   message: string;
 }
 
+export interface DailyAnalytics {
+  date: string;
+  ordersToday: number;
+  revenueToday: number;
+  ordersByStatus: { status: string; count: number }[];
+  topItems: {
+    menuItemId: string;
+    name: string;
+    imageEmoji: string;
+    quantitySold: number;
+  }[];
+}
+
 export interface Forecast {
   date: string;
   totalPredictedOrders: number;

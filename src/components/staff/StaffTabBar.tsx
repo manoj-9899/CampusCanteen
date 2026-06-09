@@ -1,11 +1,21 @@
 "use client";
 
-export type StaffTab = "queue" | "verify" | "inventory" | "forecast";
+import { cn } from "@/lib/cn";
+
+export type StaffTab =
+  | "queue"
+  | "verify"
+  | "menu"
+  | "inventory"
+  | "sales"
+  | "forecast";
 
 const TABS: { id: StaffTab; label: string }[] = [
   { id: "queue", label: "Pickup queue" },
   { id: "verify", label: "Verify token" },
+  { id: "menu", label: "Menu" },
   { id: "inventory", label: "Inventory" },
+  { id: "sales", label: "Today's sales" },
   { id: "forecast", label: "Forecast" },
 ];
 
@@ -19,7 +29,7 @@ export function StaffTabBar({
   return (
     <div className="mb-4 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div
-        className="flex min-w-max gap-1 rounded-xl bg-slate-100 p-1 lg:min-w-0 lg:flex-wrap"
+        className="flex min-w-max gap-1 rounded-xl bg-surface-muted p-1 lg:min-w-0 lg:flex-wrap"
         role="tablist"
         aria-label="Staff sections"
       >
@@ -29,12 +39,16 @@ export function StaffTabBar({
             type="button"
             role="tab"
             aria-selected={active === id}
+            aria-controls={`staff-panel-${id}`}
+            id={`staff-tab-${id}`}
             onClick={() => onChange(id)}
-            className={`min-h-10 shrink-0 rounded-lg px-3 py-2 text-xs font-semibold whitespace-nowrap transition sm:px-4 sm:text-sm ${
+            className={cn(
+              "min-h-10 shrink-0 rounded-lg px-3 py-2 text-xs font-semibold whitespace-nowrap transition sm:px-4 sm:text-sm",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
               active === id
-                ? "bg-white text-orange-700 shadow-sm ring-1 ring-slate-200"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+                ? "bg-surface text-primary shadow-sm ring-1 ring-border"
+                : "text-muted hover:text-foreground"
+            )}
           >
             {label}
           </button>

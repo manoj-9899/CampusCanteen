@@ -1,12 +1,15 @@
 "use client";
 
-import { Loader2 } from "lucide-react";
+import { Loader2, ShoppingBag } from "lucide-react";
 import {
   StatusChip,
   orderStatusChipLabel,
   orderStatusChipVariant,
 } from "@/components/ui/StatusChip";
 import { ActiveOrderBanner } from "../ActiveOrderBanner";
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { cn } from "@/lib/cn";
 import type { Order } from "@/types";
 
 export function StudentOrdersPanel({
@@ -30,64 +33,74 @@ export function StudentOrdersPanel({
         />
       )}
 
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-bold text-slate-900">Your orders</h2>
-        <p className="mt-0.5 text-xs text-slate-500">
-          Tap an order to view receipt or QR code
-        </p>
-        <ul className="mt-3 space-y-2">
-          {orders.map((order) => {
-            const canOpenReceipt =
-              order.paymentStatus === "PAID" &&
-              order.status !== "CANCELLED" &&
-              order.status !== "PENDING";
-            return (
-              <li key={order.id}>
-                <button
-                  type="button"
-                  onClick={() => canOpenReceipt && onOpenReceipt(order.id)}
-                  disabled={!canOpenReceipt || receiptLoading}
-                  className={`w-full rounded-lg bg-slate-50 p-3 text-left text-sm transition ${
-                    canOpenReceipt
-                      ? "hover:bg-orange-50 active:bg-orange-100"
-                      : "cursor-default opacity-70"
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-mono text-lg font-bold text-orange-600">
-                      {order.tokenNumber}
-                    </span>
-                    <StatusChip
-                      label={orderStatusChipLabel(order.status)}
-                      variant={orderStatusChipVariant(order.status)}
-                    />
-                  </div>
-                  <p className="mt-0.5 text-xs text-slate-500">{order.orderCode}</p>
-                  <p className="mt-1 text-sm font-medium text-slate-800">
-                    ₹{order.totalAmount}
-                    {canOpenReceipt && (
-                      <span className="ml-2 text-xs font-normal text-orange-600">
-                        View receipt →
-                      </span>
-                    )}
-                  </p>
-                </button>
-              </li>
-            );
-          })}
-          {orders.length === 0 && (
-            <p className="py-6 text-center text-sm text-slate-500">
-              No orders yet — browse the menu to place your first order.
+      <Card>
+        <CardContent className="p-4">
+          <CardTitle className="text-sm">Your orders</CardTitle>
+          <CardDescription className="text-xs">
+            Tap an order to view receipt or QR code
+          </CardDescription>
+
+          {orders.length === 0 ? (
+            <EmptyState
+              className="mt-4"
+              icon={ShoppingBag}
+              title="No orders yet"
+              description="Browse the menu and place your first pre-order."
+            />
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {orders.map((order) => {
+                const canOpenReceipt =
+                  order.paymentStatus === "PAID" &&
+                  order.status !== "CANCELLED" &&
+                  order.status !== "PENDING";
+                return (
+                  <li key={order.id}>
+                    <button
+                      type="button"
+                      onClick={() => canOpenReceipt && onOpenReceipt(order.id)}
+                      disabled={!canOpenReceipt || receiptLoading}
+                      className={cn(
+                        "w-full rounded-xl bg-surface-muted p-3 text-left text-sm transition",
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                        canOpenReceipt
+                          ? "hover:bg-primary-light active:bg-orange-100"
+                          : "cursor-default opacity-70"
+                      )}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-mono text-lg font-bold text-primary">
+                          {order.tokenNumber}
+                        </span>
+                        <StatusChip
+                          label={orderStatusChipLabel(order.status)}
+                          variant={orderStatusChipVariant(order.status)}
+                        />
+                      </div>
+                      <p className="mt-0.5 text-xs text-muted">{order.orderCode}</p>
+                      <p className="mt-1 text-sm font-medium text-foreground">
+                        ₹{order.totalAmount}
+                        {canOpenReceipt && (
+                          <span className="ml-2 text-xs font-normal text-primary">
+                            View receipt →
+                          </span>
+                        )}
+                      </p>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          {receiptLoading && (
+            <p className="mt-2 flex items-center justify-center gap-2 text-xs text-muted">
+              <Loader2 className="h-3 w-3 animate-spin" aria-hidden />
+              Loading receipt…
             </p>
           )}
-        </ul>
-        {receiptLoading && (
-          <p className="mt-2 flex items-center justify-center gap-2 text-xs text-slate-500">
-            <Loader2 className="h-3 w-3 animate-spin" />
-            Loading receipt…
-          </p>
-        )}
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

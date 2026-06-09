@@ -1,0 +1,92 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  STAFF
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  READY_FOR_PICKUP
+  COLLECTED
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  studentId String? @unique
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  orders    Order[]
+}
+
+model MenuItem {
+  id                String      @id @default(cuid())
+  name              String
+  description       String
+  price             Float
+  category          String
+  stockQuantity     Int         @default(0)
+  lowStockThreshold Int         @default(5)
+  isAvailable       Boolean     @default(true)
+  isDailySpecial    Boolean     @default(false)
+  imageEmoji        String      @default("🍽️")
+  orderItems        OrderItem[]
+
+  @@index([isDailySpecial])
+}
+
+model Order {
+  id            String        @id @default(cuid())
+  orderCode     String        @unique
+  tokenNumber   String        @unique
+  orderNumber   Int           @unique
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentRef    String?
+  paymentMethod String?
+  totalAmount   Float
+  pickupSecret  String?
+  collectedAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  items         OrderItem[]
+
+  @@index([userId, createdAt])
+  @@index([paymentStatus, status, createdAt])
+  @@index([createdAt, paymentStatus])
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  quantity   Int
+  unitPrice  Float
+
+  @@index([orderId])
+  @@index([menuItemId])
+}

@@ -45,50 +45,41 @@ You will use Neon for the live site only. Local development can stay on SQLite.
 
 ---
 
-## Part 2 — Switch Prisma to PostgreSQL (for deploy)
+## Part 2 — No manual schema edit needed
 
-On your laptop, open `prisma/schema.prisma` and change:
+The repo keeps **SQLite** for local dev (`prisma/schema.prisma`) and a copy
+**`prisma/schema.postgresql.prisma`** for production.
 
-```prisma
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-```
-
-(Change `sqlite` → `postgresql`.)
-
-**Do not commit your production `.env`.** Only change the schema file.
-
-> **Tip:** After viva you can switch back to `sqlite` for easy local demo, or keep `postgresql` and use Neon URL in local `.env` too.
+- **Netlify** runs `scripts/netlify-build.mjs` before build (see `netlify.toml`) — swaps to PostgreSQL automatically.
+- **Your laptop** stays on SQLite for `npm run dev` after Neon setup.
 
 ---
 
 ## Part 3 — Create tables and seed data on Neon
 
-On your laptop, in the project folder:
+On your laptop, in the project folder (one-time):
 
 ### Windows (PowerShell)
 
 ```powershell
 cd "C:\Users\manoj\Desktop\Mini Project\canteen-preorder"
 
-# Temporarily point at Neon (paste YOUR connection string)
+# Paste YOUR Neon connection string
 $env:DATABASE_URL="postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require"
 
-npx prisma db push
-npm run db:seed
+npm run db:setup:neon
 ```
+
+This pushes the schema to Neon, seeds demo users/menu, then **restores SQLite** for local dev.
 
 ### Mac
 
 ```bash
-cd ~/Desktop/CampusCanteen
+cd ~/path/to/canteen-preorder
 
 export DATABASE_URL="postgresql://user:pass@ep-xxx.neon.tech/neondb?sslmode=require"
 
-npx prisma db push
-npm run db:seed
+npm run db:setup:neon
 ```
 
 You should see:
@@ -107,7 +98,7 @@ Your local `.env` can still say `file:./dev.db` for day-to-day coding. Neon is o
 
 ## Part 4 — Push code to GitHub
 
-Make sure latest code (including `netlify.toml` and `postgresql` in schema) is on GitHub:
+Make sure latest code (including `netlify.toml`, `schema.postgresql.prisma`, and UI changes) is on GitHub:
 
 ```powershell
 cd "C:\Users\manoj\Desktop\Mini Project\canteen-preorder"
@@ -138,17 +129,27 @@ Repo: **https://github.com/manoj-9899/CampusCanteen**
    | Setting | Value |
    |---------|--------|
    | Branch | `main` |
-   | Build command | `npm run build` |
+   | Build command | `node scripts/netlify-build.mjs && npm run build` *(or leave empty — `netlify.toml` sets this)* |
    | Publish directory | *(leave empty — `@netlify/plugin-nextjs` handles it)* |
+
+   > **Important:** The repo’s `netlify.toml` already runs the PostgreSQL schema swap before build. If you override the build command in the Netlify UI, use the full command above — not `npm run build` alone.
 
 ### 5.3 Environment variables
 
 Before clicking **Deploy**, open **Environment variables** → **Add a variable**:
 
-| Key | Value |
+| Key | Value | Required |
+|-----|--------|----------|
+| `DATABASE_URL` | Full Neon connection string (with `?sslmode=require`) | Yes |
+| `JWT_SECRET` | Long random string — **not** the `.env.example` value. `openssl rand -base64 32` | Yes |
+| `NODE_VERSION` | `20` | No (set in `netlify.toml`) |
+
+**Do not set on Netlify:**
+
+| Key | Reason |
 |-----|--------|
-| `DATABASE_URL` | Your full Neon connection string (with `?sslmode=require`) |
-| `JWT_SECRET` | A long random string (not the dev example). Example: `campus-canteen-prod-secret-2026-random-32chars` |
+| `TEST_PAYMENT_MODE` | Dev/test only; production ignores it but avoid confusion |
+| `DATABASE_URL=file:./dev.db` | SQLite does not work on Netlify |
 
 Click **Deploy site**.
 
@@ -176,6 +177,31 @@ Rename under **Site configuration → Domain management → Options → Edit sit
 
 ---
 
+## Demo credentials policy (RC1)
+
+The seed script creates **known demo accounts** for presentations and QA:
+
+| Account | Email | Default password |
+|---------|-------|------------------|
+| Student | `student@college.edu` | `student123` |
+| Staff | `staff@canteen.edu` | `staff123` |
+
+### Acceptable for RC1
+
+- Classroom demos, viva, controlled campus Wi‑Fi
+- Netlify preview URLs shared only with evaluators
+
+### Required before any wider public launch
+
+1. **Rotate passwords** in Neon (update `User.password` with bcrypt hashes) or remove seed users and create real accounts manually
+2. **Do not re-run** `npm run db:setup:neon` against production — it deletes all orders and resets users
+3. Consider disabling open registration or adding an allowlist (future sprint — not in RC1)
+4. Label the site as **demo / RC1** in the UI or URL (e.g. `campus-canteen-demo.netlify.app`)
+
+RC1 uses **simulated payments** — no real money is collected regardless of credentials.
+
+---
+
 ## Troubleshooting
 
 ### Build failed: Prisma / DATABASE_URL
@@ -187,7 +213,7 @@ Rename under **Site configuration → Domain management → Options → Edit sit
 ### Build failed: Next.js version
 
 - Ensure `netlify.toml` exists with `@netlify/plugin-nextjs` (already in repo)
-- Build command: `npm run build`
+- Build command must include schema swap: `node scripts/netlify-build.mjs && npm run build`
 
 ### Site loads but login fails
 
@@ -208,14 +234,18 @@ Rename under **Site configuration → Domain management → Options → Edit sit
 
 ## After deployment checklist
 
+See also **[docs/RC1_RELEASE.md](./RC1_RELEASE.md)** for the full RC1 deployment checklist.
+
 - [ ] Neon project created, connection string copied  
-- [ ] `schema.prisma` uses `postgresql`  
-- [ ] `prisma db push` + `db:seed` run against Neon once  
-- [ ] Code pushed to GitHub  
+- [ ] `npm run db:setup:neon` run against Neon **once** (not on every deploy)  
+- [ ] Code tagged or pushed at `v1.0.0-rc1`  
 - [ ] Netlify site connected to GitHub repo  
-- [ ] `DATABASE_URL` and `JWT_SECRET` set in Netlify  
-- [ ] Build succeeded  
-- [ ] Student + staff login work on live URL  
+- [ ] `DATABASE_URL` and `JWT_SECRET` set in Netlify (strong secret, not example)  
+- [ ] Build command matches `netlify.toml` (schema swap + build)  
+- [ ] CI green: lint, test, `build:netlify`  
+- [ ] Build succeeded on Netlify  
+- [ ] Student checkout + staff QR verify on live URL  
+- [ ] Demo credential policy documented for your audience  
 
 ---
 

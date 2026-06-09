@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireSession } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { stripPickupSecretFromOrders } from "@/lib/order-response";
 import { handleAuthError } from "@/lib/api-utils";
 
 export async function GET() {
@@ -19,7 +20,7 @@ export async function GET() {
       orderBy: { createdAt: "asc" },
     });
 
-    return NextResponse.json({ orders });
+    return NextResponse.json({ orders: stripPickupSecretFromOrders(orders) });
   } catch (error) {
     return handleAuthError(error);
   }

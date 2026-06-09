@@ -1,5 +1,8 @@
 [build]
-  command = "npm run build"
+  command = "node scripts/netlify-build.mjs && npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
